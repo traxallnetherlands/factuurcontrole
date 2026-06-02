@@ -29,7 +29,6 @@
       width: 100%;
     }
 
-    /* Bovenste rij met 3 identieke boxen */
     .top-row {
       display: flex;
       gap: 20px;
@@ -50,7 +49,6 @@
       gap: 12px;
     }
 
-    /* Onderste box over de volledige breedte */
     .bottom-container {
       width: 100%;
       background-color: white;
@@ -327,11 +325,10 @@
         <h2>Criteria & Logica</h2>
         <p>Correct gefactureerde kentekens worden automatisch weggelaten.</p>
         <ul>
-          <li><strong>Inactieve auto gefactureerd:</strong> Auto staat op inactief in Fleet, maar er worden wel kosten geboekt.</li>
+          <li><strong>Blad Actief-Inactief:</strong> Bevat alle actieve auto's zonder factuur óf inactieve auto's mét factuur.</li>
           <li><strong>Schade hoger dan eigen risico:</strong> Schadebedragen die het ingestelde eigen risico overschrijden.</li>
           <li><strong>Verschil leasetarief:</strong> Verschil tussen factuur en contract groter dan de ingestelde negeer-marge.</li>
-          <li><strong>Actief kenteken niet gefactureerd:</strong> Status is Actief/Inleverproces, maar komt niet voor op de factuur.</li>
-          <li><strong>Vervangend vervoer hoog bedrag:</strong> Kosten voor vervangend vervoer overschrijden 13% van het leasetarief uit de fleet. Negatieve bedragen (credits) worden genegeerd.</li>
+          <li><strong>Vervangend vervoer hoog bedrag:</strong> Kosten overschrijden 13% van het fleet leasetarief. Credits (< €0) worden overgeslagen.</li>
         </ul>
       </div>
 
@@ -347,19 +344,17 @@
   </div>
 
   <script>
-    // Config kolommen conform Fleet
     const FLEET_PLATE_COL = "License Plate";
     const FLEET_CONTRACT_COL = "Monthly Contractual VATex";
     const FLEET_STATUS_COL = "Status";
     const FLEET_LEASCO_COL = "Lease Company"; 
     const FLEET_STATUS_DATE_COL = "Status Since"; 
 
-    // Scope statuses
     const STATUS_ACTIVE = "actief";
     const STATUS_RETURNING = "inleverproces bezig";
     const STATUS_INACTIVE = "inactief";
 
-    // Globale opslag voor Excel export
+    let reportActiveInactiveData = [];
     let reportLeaseData = [];
     let reportDamageData = [];
 
@@ -419,6 +414,29 @@
       return Number.isFinite(n) ? n.toFixed(2) : "0.00";
     }
 
+    // Excel serienummer of string omzetten naar leesbare datum (d-m-yyyy)
+    function formatDate(v) {
+      if (!v) return "";
+      if (Number.isFinite(v) || (!isNaN(v) && !isNaN(parseFloat(v)))) {
+        const serial = parseFloat(v);
+        const utc_days  = Math.floor(serial - 25569);
+        const utc_value = utc_days * 86400;
+        const date_info = new Date(utc_value * 1000);
+        
+        // Excel schrikkeljaar bug 1900 compensatie
+        const fractional_day = serial - Math.floor(serial) + 0.0000001;
+        let total_seconds = Math.floor(86400 * fractional_day);
+        const seconds = total_seconds % 60;
+        total_seconds -= seconds;
+        const hours = Math.floor(total_seconds / 3600);
+        const minutes = Math.floor(total_seconds / 60) % 60;
+        
+        const d = new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
+        return `${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
+      }
+      return v.toString().trim();
+    }
+
     function normalizeFleetStatus(v) {
       const s = (v || "").toString().trim().toLowerCase();
       if (s === "active" || s === "actief") return STATUS_ACTIVE;
@@ -432,6 +450,7 @@
       document.getElementById("downloadBtn").disabled = true;
       document.getElementById("result").innerHTML = "<p>Verwerken...</p>";
       
+      reportActiveInactiveData = [];
       reportLeaseData = [];
       reportDamageData = [];
 
@@ -444,20 +463,19 @@
         return;
       }
 
-      // Input thresholds & filters ophalen
       const leaseThreshold = Math.abs(parseFloat(document.getElementById("ignoreLeaseDiff").value)) || 0;
       const ownRiskThreshold = parseFloat(document.getElementById("ownRiskAmount").value) || 0;
-      
       const ignoredDamages = Array.from(document.querySelectorAll('.damage-ignore:checked')).map(cb => cb.value.toLowerCase());
 
       try {
         const acc = await readExcel(accFile);
         const fleet = await readExcel(fleetFile);
 
-        // Map bouwen van Full Fleet Overview
         const fleetMap = {};
         const unvisitedActivePlates = new Set();
+        const platesInInvoice = new Set();
 
+        // 1. Bouw Fleet Kaart
         fleet.forEach(f => {
           const plate = cleanPlate(f[FLEET_PLATE_COL]);
           if (!plate) return;
@@ -465,7 +483,7 @@
           const contractNum = toNumber(f[FLEET_CONTRACT_COL]);
           const statusRaw = f[FLEET_STATUS_COL] || "";
           const statusNorm = normalizeFleetStatus(statusRaw);
-          const statusSince = f[FLEET_STATUS_DATE_COL] || "";
+          const statusSince = formatDate(f[FLEET_STATUS_DATE_COL]);
           const leasCo = f[FLEET_LEASCO_COL] || "";
 
           fleetMap[plate] = {
@@ -474,7 +492,7 @@
             statusNorm,
             statusSince,
             leasCo,
-            matchedInAcc: false
+            hasInvoiceRecords: false
           };
 
           if (statusNorm === STATUS_ACTIVE || statusNorm === STATUS_RETURNING) {
@@ -482,7 +500,18 @@
           }
         });
 
-        // Factuurregels per kenteken groeperen/analyseren
+        // Eerste pass om te kijken welke kentekens überhaupt voorkomen op de factuur
+        acc.forEach(r => {
+          const plate = cleanPlate(r["Immat"]);
+          if (plate) {
+            platesInInvoice.add(plate);
+            if (fleetMap[plate]) {
+              fleetMap[plate].hasInvoiceRecords = true;
+            }
+          }
+        });
+
+        // 2. Loop door de factuurregels
         const aggLease = {}; 
 
         acc.forEach(r => {
@@ -494,39 +523,34 @@
           const htAmount = toNumber(r["HT"]);
           const invoiceNum = (r["Numero_facture"] || "").toString().trim();
           
-          // Kolomkoppeling vanuit dashboard: Date en Fournisseur (of alternatieven) vangen
-          const invoiceDate = (r["Date"] || r["Date_facture"] || "").toString().trim();
+          const invoiceDate = formatDate(r["Date"] || r["Date_facture"]);
           const leasCoInvoice = (r["Fournisseur"] || r["Nom_fournisseur"] || "").toString().trim();
 
           const f = fleetMap[plate];
           const isInactive = f && f.statusNorm === STATUS_INACTIVE;
-          const statusSinceVal = f ? f.statusSince : "";
 
           if (f) {
-            f.matchedInAcc = true;
             unvisitedActivePlates.delete(plate);
           }
 
-          // CRITERIUM 1: Inactieve auto gefactureerd (Geldt voor ALLE kosten)
+          // AFWIJKING: Inactieve auto gefactureerd -> Gaat naar blad 'Actief-Inactief'
           if (isInactive && Math.abs(htAmount) > 0.001) {
-            reportDamageData.push({
-              deviationType: "Inactieve auto gefactureerd",
+            reportActiveInactiveData.push({
+              deviationType: "Inactief - Wel gefactureerd",
               plate: plate,
               status: f ? f.statusRaw : "Inactief",
-              statusSince: statusSinceVal,
+              statusSince: f ? f.statusSince : "",
               leasCo: leasCoInvoice || (f ? f.leasCo : ""),
               invoiceNum: invoiceNum,
               invoiceDate: invoiceDate,
               costType: `${costType} - ${product}`,
-              invoiced: htAmount,
-              replacementSurplus: ""
+              invoiced: htAmount
             });
-            return; 
+            return; // Wordt uitgesloten van overige tabbladen
           }
 
-          // Indien auto actief/inleverproces is, verwerk specifieke kostensoorten
+          // Indien de auto niet inactief is én correct gefactureerd mag worden:
           if (!isInactive) {
-            // Verzamelgroep Leasetarief
             if (costType === "Contractuele kosten" && product === "Leasetarief") {
               if (!aggLease[plate]) {
                 aggLease[plate] = {
@@ -536,17 +560,17 @@
                   invoiceNums: new Set(),
                   invoiceDates: new Set(),
                   leasCo: leasCoInvoice,
-                  statusSince: statusSinceVal
+                  statusSince: f ? f.statusSince : ""
                 };
               }
               aggLease[plate].lineCount += 1;
               aggLease[plate].invoicedSum += htAmount;
               if (invoiceNum) aggLease[plate].invoiceNums.add(invoiceNum);
               if (invoiceDate) aggLease[plate].invoiceDates.add(invoiceDate);
-              if (leasCoInvoice) aggLease[plate].leasCo = leasCoInvoice; // Altijd meest recente overschrijven
+              if (leasCoInvoice) aggLease[plate].leasCo = leasCoInvoice;
             }
 
-            // Schades verwerken (Indien niet expliciet uitgevinkt bij negeren)
+            // Schades
             const isDamageProduct = [
               'bandenschade', 'diefstal', 'eigen risico', 
               'onderhoud doorbelast', 'overige schadekosten', 
@@ -554,17 +578,14 @@
             ].includes(product.toLowerCase());
 
             if (isDamageProduct) {
-              if (ignoredDamages.includes(product.toLowerCase())) {
-                return; // Overslaan wegens checkbox 'Schades negeren'
-              }
+              if (ignoredDamages.includes(product.toLowerCase())) return;
               
-              // CRITERIUM 2: Schade hoger dan eigen risico
               if (htAmount > ownRiskThreshold) {
                 reportDamageData.push({
                   deviationType: "Schade hoger dan eigen risico",
                   plate: plate,
                   status: f ? f.statusRaw : "Actief",
-                  statusSince: statusSinceVal,
+                  statusSince: f ? f.statusSince : "",
                   leasCo: leasCoInvoice || (f ? f.leasCo : ""),
                   invoiceNum: invoiceNum,
                   invoiceDate: invoiceDate,
@@ -575,24 +596,20 @@
               }
             }
 
-            // CRITERIUM 5: Vervangend vervoer hoog bedrag
+            // Vervangend vervoer hoog bedrag
             if (product.toLowerCase().includes("vervangend vervoer") || costType.toLowerCase().includes("vervangend vervoer")) {
-              // Negatieve bedragen (credits) direct negeren/overslaan
-              if (htAmount < 0) {
-                return;
-              }
+              if (htAmount < 0) return; // Credits overslaan
 
               const leaseTariffFleet = f ? f.contractNum : 0;
               const maxAllowedVV = leaseTariffFleet * 0.13;
               
               if (htAmount > maxAllowedVV) {
-                // Correctie: Overschot is nu het Gefactureerde bedrag MINUS de 13% grens van het leasetarief
                 const surplus = htAmount - maxAllowedVV;
                 reportDamageData.push({
                   deviationType: "Vervangend vervoer hoog bedrag",
                   plate: plate,
                   status: f ? f.statusRaw : "Actief",
-                  statusSince: statusSinceVal,
+                  statusSince: f ? f.statusSince : "",
                   leasCo: leasCoInvoice || (f ? f.leasCo : ""),
                   invoiceNum: invoiceNum,
                   invoiceDate: invoiceDate,
@@ -605,20 +622,19 @@
           }
         });
 
-        // Verwerk geaggregeerde leasetarieven en bereken verschillen
+        // Aggregaties verwerken voor Leasetarieven
         Object.keys(aggLease).forEach(plate => {
           const a = aggLease[plate];
           const f = fleetMap[plate];
           const fleetLease = f ? f.contractNum : 0;
           const diff = a.invoicedSum - fleetLease;
 
-          // CRITERIUM 3: Verschil leasetarief (enkel tonen buiten de 'negeer' marge)
           if (Math.abs(diff) > leaseThreshold) {
             reportLeaseData.push({
               deviationType: "Verschil leasetarief",
               plate: plate,
               status: f ? f.statusRaw : "Niet in fleet",
-              statusSince: a.statusSince,
+              statusSince: f ? f.statusSince : "",
               leasCo: a.leasCo || (f ? f.leasCo : ""),
               invoiceNum: Array.from(a.invoiceNums).join(", "),
               invoiceDate: Array.from(a.invoiceDates).join(", "),
@@ -630,25 +646,22 @@
           }
         });
 
-        // CRITERIUM 4: Actief kenteken niet gefactureerd
+        // AFWIJKING: Actief kenteken niet gefactureerd -> Gaat naar 'Actief-Inactief' en nergens anders!
         unvisitedActivePlates.forEach(plate => {
           const f = fleetMap[plate];
-          reportLeaseData.push({
-            deviationType: "Actief kenteken niet gefactureerd",
+          reportActiveInactiveData.push({
+            deviationType: "Actief - Niet gefactureerd",
             plate: plate,
             status: f.statusRaw,
-            statusSince: f.statusSince,
-            leasCo: f.leasCo,
+            statusSince: "", // Velden leeglaten conform instructie
+            leasCo: "",
             invoiceNum: "",
             invoiceDate: "",
-            lineCount: 0,
-            invoiced: 0,
-            traxallCosts: f.contractNum,
-            difference: 0 - f.contractNum
+            costType: "",
+            invoiced: ""
           });
         });
 
-        // Output renderen op scherm
         renderHTMLTables();
 
       } catch (err) {
@@ -661,7 +674,7 @@
     function renderHTMLTables() {
       let html = "";
 
-      if (reportLeaseData.length === 0 && reportDamageData.length === 0) {
+      if (reportActiveInactiveData.length === 0 && reportLeaseData.length === 0 && reportDamageData.length === 0) {
         document.getElementById("result").innerHTML = "<p style='color: green; font-weight: bold; margin-top:15px;'>Mooi! Er zijn geen afwijkingen gevonden op basis van de ingestelde filters.</p>";
         document.getElementById("downloadBtn").disabled = true;
         return;
@@ -669,7 +682,32 @@
 
       document.getElementById("downloadBtn").disabled = false;
 
-      // 1. Tabel Leasetarief afwijkingen
+      // 1. Tabel Actief-Inactief
+      if (reportActiveInactiveData.length > 0) {
+        html += `<div class="table-section-title">Blad: Actief-Inactief (${reportActiveInactiveData.length} afwijkingen)</div>`;
+        html += `<div class="table-wrap"><table class="table">`;
+        html += `<tr>
+          <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
+          <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th><th>Kostensoort</th><th>Gefactureerd</th>
+        </tr>`;
+        reportActiveInactiveData.forEach(r => {
+          const infShow = r.invoiced === "" ? "" : "€ " + format2(r.invoiced);
+          html += `<tr>
+            <td class="bad">${r.deviationType}</td>
+            <td><strong>${r.plate}</strong></td>
+            <td>${r.status}</td>
+            <td>${r.statusSince}</td>
+            <td>${r.leasCo}</td>
+            <td>${r.invoiceNum}</td>
+            <td>${r.invoiceDate}</td>
+            <td>${r.costType}</td>
+            <td>${infShow}</td>
+          </tr>`;
+        });
+        html += `</table></div>`;
+      }
+
+      // 2. Tabel Leasetarief
       if (reportLeaseData.length > 0) {
         html += `<div class="table-section-title">Blad: Leasetarief (${reportLeaseData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
@@ -678,7 +716,6 @@
           <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Aantal regels</th><th>Gefactureerd</th><th>Kosten volgens TraXall</th><th>Verschil</th>
         </tr>`;
-        
         reportLeaseData.forEach(r => {
           html += `<tr>
             <td class="bad">${r.deviationType}</td>
@@ -697,7 +734,7 @@
         html += `</table></div>`;
       }
 
-      // 2. Tabel Schades & Vervangend vervoer afwijkingen
+      // 3. Tabel Schades-Vervangend vervoer
       if (reportDamageData.length > 0) {
         html += `<div class="table-section-title">Blad: Schades-Vervangend vervoer (${reportDamageData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
@@ -706,7 +743,6 @@
           <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Kostensoort</th><th>Gefactureerd</th><th>Overschot verv. vervoer</th>
         </tr>`;
-
         reportDamageData.forEach(r => {
           const surplusShow = r.replacementSurplus === "" ? "" : "€ " + format2(r.replacementSurplus);
           html += `<tr>
@@ -726,12 +762,23 @@
       }
 
       document.getElementById("result").innerHTML = html;
-      document.getElementById("message").textContent = "Analyse voltooid. Correcte matches zijn weggelaten.";
+      document.getElementById("message").textContent = "Analyse voltooid. Mismatches filteren succesvol doorgevoerd.";
     }
 
     function downloadXlsx() {
-      // Data transformeren naar de exacte gevraagde kolomkoppen voor Excel
-      const sheet1Rows = reportLeaseData.map(r => ({
+      const sheet1Rows = reportActiveInactiveData.map(r => ({
+        "Soort afwijking": r.deviationType,
+        "Kenteken": r.plate,
+        "Status": r.status,
+        "Status sinds": r.statusSince,
+        "Leasemaatschappij factuur": r.leasCo,
+        "Factuurnummer": r.invoiceNum,
+        "Factuurdatum": r.invoiceDate,
+        "Kostensoort": r.costType,
+        "Gefactureerd": r.invoiced === "" ? "" : Number(r.invoiced.toFixed(2))
+      }));
+
+      const sheet2Rows = reportLeaseData.map(r => ({
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
         "Status": r.status,
@@ -745,7 +792,7 @@
         "Verschil": Number(r.difference.toFixed(2))
       }));
 
-      const sheet2Rows = reportDamageData.map(r => ({
+      const sheet3Rows = reportDamageData.map(r => ({
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
         "Status": r.status,
@@ -760,35 +807,44 @@
 
       const wb = XLSX.utils.book_new();
 
-      // Werkblad 1 aanmaken & opmaken
       const ws1 = XLSX.utils.json_to_sheet(sheet1Rows);
-      if (sheet1Rows.length > 0) {
-        const range1 = XLSX.utils.decode_range(ws1["!ref"]);
-        for (let R = range1.s.r + 1; R <= range1.e.r; ++R) {
-          ["I", "J", "K"].forEach(C => {
-            const cell = ws1[C + (R + 1)];
-            if (cell && typeof cell.v === "number") cell.z = "0.00";
-          });
-        }
-      }
-      XLSX.utils.book_append_sheet(wb, ws1, "Leasetarief");
+      applyExcelStyles(ws1, sheet1Rows.length, ["I"]);
+      XLSX.utils.book_append_sheet(wb, ws1, "Actief-Inactief");
 
-      // Werkblad 2 aanmaken & opmaken
       const ws2 = XLSX.utils.json_to_sheet(sheet2Rows);
-      if (sheet2Rows.length > 0) {
-        const range2 = XLSX.utils.decode_range(ws2["!ref"]);
-        for (let R = range2.s.r + 1; R <= range2.e.r; ++R) {
-          ["I", "J"].forEach(C => {
-            const cell = ws2[C + (R + 1)];
-            if (cell && typeof cell.v === "number") cell.z = "0.00";
-          });
-        }
-      }
-      XLSX.utils.book_append_sheet(wb, ws2, "Schades-Vervangend vervoer");
+      applyExcelStyles(ws2, sheet2Rows.length, ["I", "J", "K"]);
+      XLSX.utils.book_append_sheet(wb, ws2, "Leasetarief");
 
-      // Bestand opslaan met datumstempel
+      const ws3 = XLSX.utils.json_to_sheet(sheet3Rows);
+      applyExcelStyles(ws3, sheet3Rows.length, ["I", "J"]);
+      XLSX.utils.book_append_sheet(wb, ws3, "Schades-Vervangend vervoer");
+
       const stamp = new Date().toISOString().slice(0, 10);
       XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
+    }
+
+    // Hulpoorlogica om koppen dikgedrukt te maken en nummerformaten toe te voegen
+    function applyExcelStyles(ws, rowCount, numCols) {
+      if (!ws["!ref"]) return;
+      const range = XLSX.utils.decode_range(ws["!ref"]);
+      
+      // Maak alle cellen in rij 1 (headers) dikgedrukt via cell metadata
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!ws[cellAddress]) continue;
+        if (!ws[cellAddress].s) ws[cellAddress].s = {};
+        ws[cellAddress].s.font = { bold: true };
+      }
+
+      // Valuta nummerformattering toevoegen voor specifieke kolommen
+      if (rowCount > 0) {
+        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+          numCols.forEach(colLetter => {
+            const cell = ws[colLetter + (R + 1)];
+            if (cell && typeof cell.v === "number") cell.z = "0.00";
+          });
+        }
+      }
     }
   </script>
 </body>
