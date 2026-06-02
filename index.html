@@ -138,6 +138,15 @@
       border-radius: 4px;
     }
 
+    .sub-group {
+      margin-left: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-left: 2px solid #cfd6e4;
+      padding-left: 10px;
+    }
+
     .checkbox-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -293,9 +302,16 @@
         <p>Stel hier de marges en uitsluitingen in voor de analyse.</p>
         
         <div class="form-group">
-          <div class="form-row">
-            <label for="ignoreLeaseDiff">Verschil in leasetarief negeren:</label>
-            <input type="number" id="ignoreLeaseDiff" value="0.50" step="0.01" min="0" />
+          <label style="font-size: 14px; font-weight: bold; color: #213153;">Verschil in leasetarief negeren:</label>
+          <div class="sub-group">
+            <div class="form-row">
+              <label for="ignoreLeaseDiff" style="font-weight: normal;">Bedrag (€):</label>
+              <input type="number" id="ignoreLeaseDiff" value="0.00" step="0.01" min="0" />
+            </div>
+            <div class="form-row">
+              <label for="ignoreLeasePct" style="font-weight: normal;">Percentage (%):</label>
+              <input type="number" id="ignoreLeasePct" value="0.00" step="0.01" min="0" />
+            </div>
           </div>
         </div>
 
@@ -325,9 +341,9 @@
         <p>Correct gefactureerde kentekens worden automatisch weggelaten.</p>
         <ul>
           <li><strong>Actief-Inactief:</strong> Bevat alle actieve auto's zonder factuur óf inactieve auto's mét factuur.</li>
-          <li><strong>Leasetarief:</strong> Verschil van leaseprijs tussen factuur en contract groter dan de ingestelde negeer-marge.</li>
-          <li><strong>Schades-Vervangend vervoer:</strong> Bevat schadebedragen die het ingestelde eigen risico overschrijden en vervangend vervoer bedragen die 13% van het leasetarief overschrijden. Credits worden genegeerd</li>
-          </ul>
+          <li><strong>Leasetarief:</strong> Verschil groter dan het ingestelde bedrag én het ingestelde percentage van de contractwaarde.</li>
+          <li><strong>Schades-Vervangend vervoer:</strong> Bevat schadebedragen die het ingestelde eigen risico overschrijden en vervangend vervoer bedragen die 13% van het leasetarief overschrijden. Credits worden genegeerd.</li>
+        </ul>
       </div>
 
     </div>
@@ -459,7 +475,8 @@
         return;
       }
 
-      const leaseThreshold = Math.abs(parseFloat(document.getElementById("ignoreLeaseDiff").value)) || 0;
+      const leaseAmtThreshold = Math.abs(parseFloat(document.getElementById("ignoreLeaseDiff").value)) || 0;
+      const leasePctThreshold = Math.abs(parseFloat(document.getElementById("ignoreLeasePct").value)) || 0;
       const ownRiskThreshold = parseFloat(document.getElementById("ownRiskAmount").value) || 0;
       const ignoredDamages = Array.from(document.querySelectorAll('.damage-ignore:checked')).map(cb => cb.value.toLowerCase());
 
@@ -623,8 +640,13 @@
           const f = fleetMap[plate];
           const fleetLease = f ? f.contractNum : 0;
           const diff = a.invoicedSum - fleetLease;
+          const absDiff = Math.abs(diff);
 
-          if (Math.abs(diff) > leaseThreshold) {
+          // Bereken het werkelijke afwijkingspercentage ten opzichte van fleet-waarde
+          const currentPct = fleetLease > 0 ? (absDiff / fleetLease) * 100 : (absDiff > 0 ? 100 : 0);
+
+          // Moet zowel de bedrag- als de percentagedrempel overschrijden
+          if (absDiff > leaseAmtThreshold && currentPct > leasePctThreshold) {
             reportLeaseData.push({
               deviationType: "Verschil leasetarief",
               plate: plate,
@@ -643,7 +665,7 @@
 
         // AFWIJKING: Actief kenteken niet gefactureerd -> Gaat naar 'Actief-Inactief'
         unvisitedActivePlates.forEach(plate => {
-          const f = fleetMap[plate]; // Hier ontbrak de definitie! Nu correct gekoppeld.
+          const f = fleetMap[plate];
           reportActiveInactiveData.push({
             deviationType: "Actief - Niet gefactureerd",
             plate: plate,
