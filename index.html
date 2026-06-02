@@ -343,7 +343,7 @@
 
   </div>
 
-  <script {removed_for_privacy}>
+  <script>
     const FLEET_PLATE_COL = "License Plate";
     const FLEET_CONTRACT_COL = "Monthly Contractual VATex";
     const FLEET_STATUS_COL = "Status";
@@ -414,7 +414,6 @@
       return Number.isFinite(n) ? n.toFixed(2) : "0.00";
     }
 
-    // Excel serienummer of string omzetten naar leesbare datum (d-m-yyyy)
     function formatDate(v) {
       if (!v) return "";
       if (Number.isFinite(v) || (!isNaN(v) && !isNaN(parseFloat(v)))) {
@@ -423,7 +422,6 @@
         const utc_value = utc_days * 86400;
         const date_info = new Date(utc_value * 1000);
         
-        // Excel schrikkeljaar bug 1900 compensatie
         const fractional_day = serial - Math.floor(serial) + 0.0000001;
         let total_seconds = Math.floor(86400 * fractional_day);
         const seconds = total_seconds % 60;
@@ -533,7 +531,7 @@
             unvisitedActivePlates.delete(plate);
           }
 
-          // AFWIJKING: Inactieve auto gefactureerd -> Gaat naar blad 'Actief-Inactief'
+          // AFWIJKING: Inactieve auto gefactureerd
           if (isInactive && Math.abs(htAmount) > 0.001) {
             reportActiveInactiveData.push({
               deviationType: "Inactief - gefactureerd",
@@ -546,10 +544,9 @@
               costType: product,
               invoiced: htAmount
             });
-            return; // Wordt uitgesloten van overige tabbladen
+            return; 
           }
 
-          // Indien de auto niet inactief is én correct gefactureerd mag worden:
           if (!isInactive) {
             if (costType === "Contractuele kosten" && product === "Leasetarief") {
               if (!aggLease[plate]) {
@@ -598,7 +595,7 @@
 
             // Vervangend vervoer hoog bedrag
             if (product.toLowerCase().includes("vervangend vervoer") || costType.toLowerCase().includes("vervangend vervoer")) {
-              if (htAmount < 0) return; // Credits overslaan
+              if (htAmount < 0) return; 
 
               const leaseTariffFleet = f ? f.contractNum : 0;
               const maxAllowedVV = leaseTariffFleet * 0.13;
@@ -648,12 +645,12 @@
 
         // AFWIJKING: Actief kenteken niet gefactureerd -> Gaat naar 'Actief-Inactief'
         unvisitedActivePlates.forEach(plate => {
-          const f = fleetMap[plate];
+          const f = fleetMap[plate]; // Hier ontbrak de definitie! Nu correct gekoppeld.
           reportActiveInactiveData.push({
             deviationType: "Actief - Niet gefactureerd",
             plate: plate,
-            status: f.statusRaw,
-            statusSince: f.statusSince, // Nu correct gevuld via de fleet overview data
+            status: f ? f.statusRaw : "Actief",
+            statusSince: f ? f.statusSince : "", 
             leasCo: "",
             invoiceNum: "",
             invoiceDate: "",
@@ -823,12 +820,10 @@
       XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
     }
 
-    // Hulpoorlogica om koppen dikgedrukt te maken en nummerformaten toe te voegen
     function applyExcelStyles(ws, rowCount, numCols) {
       if (!ws["!ref"]) return;
       const range = XLSX.utils.decode_range(ws["!ref"]);
       
-      // Maak alle cellen in rij 1 (headers) dikgedrukt via cell metadata
       for (let C = range.s.c; C <= range.e.c; ++C) {
         const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
         if (!ws[cellAddress]) continue;
@@ -836,7 +831,6 @@
         ws[cellAddress].s.font = { bold: true };
       }
 
-      // Valuta nummerformattering toevoegen voor specifieke kolommen
       if (rowCount > 0) {
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
           numCols.forEach(colLetter => {
