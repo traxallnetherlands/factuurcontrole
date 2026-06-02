@@ -271,14 +271,14 @@
         <p>Groepeer contractkosten per kenteken en vergelijk met fleet.</p>
 
         <div class="dropbox">
-          <strong>Kostenexport</strong>
-          <div class="hint">Upload .xlsx / .xls</div>
+          <strong>Kostenexport TraX-it</strong>
+          <div class="hint">Upload .xlsx</div>
           <input type="file" id="accFile" accept=".xlsx,.xls" />
         </div>
 
         <div class="dropbox">
           <strong>Full Fleetoverview</strong>
-          <div class="hint">Upload .xlsx / .xls</div>
+          <div class="hint">Upload .xlsx</div>
           <input type="file" id="fleetFile" accept=".xlsx,.xls" />
         </div>
 
@@ -681,7 +681,7 @@
 
       // 1. Tabel Actief-Inactief
       if (reportActiveInactiveData.length > 0) {
-        html += `<div class="table-section-title">Blad: Actief-Inactief (${reportActiveInactiveData.length} afwijkingen)</div>`;
+        html += `<div class="table-section-title">Actief-Inactief (${reportActiveInactiveData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
@@ -706,7 +706,7 @@
 
       // 2. Tabel Leasetarief
       if (reportLeaseData.length > 0) {
-        html += `<div class="table-section-title">Blad: Leasetarief (${reportLeaseData.length} afwijkingen)</div>`;
+        html += `<div class="table-section-title">Leasetarief (${reportLeaseData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
@@ -733,7 +733,7 @@
 
       // 3. Tabel Schades-Vervangend vervoer
       if (reportDamageData.length > 0) {
-        html += `<div class="table-section-title">Blad: Schades-Vervangend vervoer (${reportDamageData.length} afwijkingen)</div>`;
+        html += `<div class="table-section-title">Schades-Vervangend vervoer (${reportDamageData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
