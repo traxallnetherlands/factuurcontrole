@@ -331,7 +331,7 @@
           <li><strong>Schade hoger dan eigen risico:</strong> Schadebedragen die het ingestelde eigen risico overschrijden.</li>
           <li><strong>Verschil leasetarief:</strong> Verschil tussen factuur en contract groter dan de ingestelde negeer-marge.</li>
           <li><strong>Actief kenteken niet gefactureerd:</strong> Status is Actief/Inleverproces, maar komt niet voor op de factuur.</li>
-          <li><strong>Vervangend vervoer hoog bedrag:</strong> Kosten voor vervangend vervoer overschrijden 13% van het leasetarief uit de fleet.</li>
+          <li><strong>Vervangend vervoer hoog bedrag:</strong> Kosten voor vervangend vervoer overschrijden 13% van het leasetarief uit de fleet. Negatieve bedragen (credits) worden genegeerd.</li>
         </ul>
       </div>
 
@@ -493,11 +493,14 @@
           const product = (r["Produit"] || "").toString().trim();
           const htAmount = toNumber(r["HT"]);
           const invoiceNum = (r["Numero_facture"] || "").toString().trim();
-          const invoiceDate = (r["Date_facture"] || "").toString().trim();
-          const leasCoInvoice = (r["Nom_fournisseur"] || "").toString().trim();
+          
+          // Kolomkoppeling vanuit dashboard: Date en Fournisseur (of alternatieven) vangen
+          const invoiceDate = (r["Date"] || r["Date_facture"] || "").toString().trim();
+          const leasCoInvoice = (r["Fournisseur"] || r["Nom_fournisseur"] || "").toString().trim();
 
           const f = fleetMap[plate];
           const isInactive = f && f.statusNorm === STATUS_INACTIVE;
+          const statusSinceVal = f ? f.statusSince : "";
 
           if (f) {
             f.matchedInAcc = true;
@@ -506,18 +509,16 @@
 
           // CRITERIUM 1: Inactieve auto gefactureerd (Geldt voor ALLE kosten)
           if (isInactive && Math.abs(htAmount) > 0.001) {
-            // Loggen in de schades/kosten tabel als zijnde inactieve kosten post
             reportDamageData.push({
               deviationType: "Inactieve auto gefactureerd",
               plate: plate,
               status: f ? f.statusRaw : "Inactief",
-              statusSince: f ? f.statusSince : "",
+              statusSince: statusSinceVal,
               leasCo: leasCoInvoice || (f ? f.leasCo : ""),
               invoiceNum: invoiceNum,
               invoiceDate: invoiceDate,
               costType: `${costType} - ${product}`,
               invoiced: htAmount,
-              ownRisk: ownRiskThreshold,
               replacementSurplus: ""
             });
             return; 
@@ -534,13 +535,15 @@
                   invoicedSum: 0,
                   invoiceNums: new Set(),
                   invoiceDates: new Set(),
-                  leasCo: leasCoInvoice
+                  leasCo: leasCoInvoice,
+                  statusSince: statusSinceVal
                 };
               }
               aggLease[plate].lineCount += 1;
               aggLease[plate].invoicedSum += htAmount;
               if (invoiceNum) aggLease[plate].invoiceNums.add(invoiceNum);
               if (invoiceDate) aggLease[plate].invoiceDates.add(invoiceDate);
+              if (leasCoInvoice) aggLease[plate].leasCo = leasCoInvoice; // Altijd meest recente overschrijven
             }
 
             // Schades verwerken (Indien niet expliciet uitgevinkt bij negeren)
@@ -561,36 +564,40 @@
                   deviationType: "Schade hoger dan eigen risico",
                   plate: plate,
                   status: f ? f.statusRaw : "Actief",
-                  statusSince: f ? f.statusSince : "",
+                  statusSince: statusSinceVal,
                   leasCo: leasCoInvoice || (f ? f.leasCo : ""),
                   invoiceNum: invoiceNum,
                   invoiceDate: invoiceDate,
                   costType: product,
                   invoiced: htAmount,
-                  ownRisk: ownRiskThreshold,
                   replacementSurplus: ""
                 });
               }
             }
 
-            // CRITERIUM 5: Vervangend vervoer hoog bedrag (> 13% van leasetarief uit fleet)
+            // CRITERIUM 5: Vervangend vervoer hoog bedrag
             if (product.toLowerCase().includes("vervangend vervoer") || costType.toLowerCase().includes("vervangend vervoer")) {
+              // Negatieve bedragen (credits) direct negeren/overslaan
+              if (htAmount < 0) {
+                return;
+              }
+
               const leaseTariffFleet = f ? f.contractNum : 0;
               const maxAllowedVV = leaseTariffFleet * 0.13;
               
               if (htAmount > maxAllowedVV) {
-                const surplus = htAmount - leaseTariffFleet;
+                // Correctie: Overschot is nu het Gefactureerde bedrag MINUS de 13% grens van het leasetarief
+                const surplus = htAmount - maxAllowedVV;
                 reportDamageData.push({
                   deviationType: "Vervangend vervoer hoog bedrag",
                   plate: plate,
                   status: f ? f.statusRaw : "Actief",
-                  statusSince: f ? f.statusSince : "",
+                  statusSince: statusSinceVal,
                   leasCo: leasCoInvoice || (f ? f.leasCo : ""),
                   invoiceNum: invoiceNum,
                   invoiceDate: invoiceDate,
                   costType: product,
                   invoiced: htAmount,
-                  ownRisk: ownRiskThreshold,
                   replacementSurplus: surplus
                 });
               }
@@ -611,7 +618,7 @@
               deviationType: "Verschil leasetarief",
               plate: plate,
               status: f ? f.statusRaw : "Niet in fleet",
-              statusSince: f ? f.statusSince : "",
+              statusSince: a.statusSince,
               leasCo: a.leasCo || (f ? f.leasCo : ""),
               invoiceNum: Array.from(a.invoiceNums).join(", "),
               invoiceDate: Array.from(a.invoiceDates).join(", "),
@@ -697,7 +704,7 @@
         html += `<tr>
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
           <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
-          <th>Kostensoort</th><th>Gefactureerd</th><th>Eigen risico klant</th><th>Overschot verv. vervoer</th>
+          <th>Kostensoort</th><th>Gefactureerd</th><th>Overschot verv. vervoer</th>
         </tr>`;
 
         reportDamageData.forEach(r => {
@@ -712,7 +719,6 @@
             <td>${r.invoiceDate}</td>
             <td>${r.costType}</td>
             <td>€ ${format2(r.invoiced)}</td>
-            <td>€ ${format2(r.ownRisk)}</td>
             <td class="bad">${surplusShow}</td>
           </tr>`;
         });
@@ -749,7 +755,6 @@
         "Factuurdatum": r.invoiceDate,
         "Kostensoort": r.costType,
         "Gefactureerd": Number(r.invoiced.toFixed(2)),
-        "Eigen risico klant": Number(r.ownRisk.toFixed(2)),
         "Overschot vervangend vervoer": r.replacementSurplus === "" ? "" : Number(r.replacementSurplus.toFixed(2))
       }));
 
@@ -773,7 +778,7 @@
       if (sheet2Rows.length > 0) {
         const range2 = XLSX.utils.decode_range(ws2["!ref"]);
         for (let R = range2.s.r + 1; R <= range2.e.r; ++R) {
-          ["I", "J", "K"].forEach(C => {
+          ["I", "J"].forEach(C => {
             const cell = ws2[C + (R + 1)];
             if (cell && typeof cell.v === "number") cell.z = "0.00";
           });
