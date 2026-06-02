@@ -348,7 +348,7 @@
     const FLEET_CONTRACT_COL = "Monthly Contractual VATex";
     const FLEET_STATUS_COL = "Status";
     const FLEET_LEASCO_COL = "Lease Company"; 
-    const FLEET_STATUS_DATE_COL = "Status Since"; 
+    const FLEET_STATUS_DATE_COL = "Status since"; 
 
     const STATUS_ACTIVE = "actief";
     const STATUS_RETURNING = "inleverproces bezig";
@@ -536,14 +536,14 @@
           // AFWIJKING: Inactieve auto gefactureerd -> Gaat naar blad 'Actief-Inactief'
           if (isInactive && Math.abs(htAmount) > 0.001) {
             reportActiveInactiveData.push({
-              deviationType: "Inactief - Wel gefactureerd",
+              deviationType: "Inactief - gefactureerd",
               plate: plate,
               status: f ? f.statusRaw : "Inactief",
               statusSince: f ? f.statusSince : "",
               leasCo: leasCoInvoice || (f ? f.leasCo : ""),
               invoiceNum: invoiceNum,
               invoiceDate: invoiceDate,
-              costType: `${costType} - ${product}`,
+              costType: product,
               invoiced: htAmount
             });
             return; // Wordt uitgesloten van overige tabbladen
