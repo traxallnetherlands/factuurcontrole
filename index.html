@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TraXall Factuurcontrole</title>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
   <style>
     body, html {
       min-height: 100%;
@@ -782,137 +781,88 @@
       document.getElementById("message").textContent = "Analyse voltooid. Mismatches filteren succesvol doorgevoerd.";
     }
 
-    async function downloadXlsx() {
-      // 1. Initialiseer een ExcelJS Workbook
-      const workbook = new ExcelJS.Workbook();
+    function downloadXlsx() {
+      const sheet1Rows = reportActiveInactiveData.map(r => ({
+        "Soort afwijking": r.deviationType,
+        "Kenteken": r.plate,
+        "Status": r.status,
+        "Status sinds": r.statusSince,
+        "Leasemaatschappij factuur": r.leasCo,
+        "Factuurnummer": r.invoiceNum,
+        "Factuurdatum": r.invoiceDate,
+        "Kostensoort": r.costType,
+        "Gefactureerd": r.invoiced === "" ? "" : Number(r.invoiced.toFixed(2))
+      }));
 
-      // --- Blad 1: Actief-Inactief ---
-      const ws1 = workbook.addWorksheet("Actief-Inactief");
-      ws1.columns = [
-        { header: "Soort afwijking", key: "devType" },
-        { header: "Kenteken", key: "plate" },
-        { header: "Status", key: "status" },
-        { header: "Status sinds", key: "since" },
-        { header: "Leasemaatschappij factuur", key: "leasCo" },
-        { header: "Factuurnummer", key: "invNum" },
-        { header: "Factuurdatum", key: "invDate" },
-        { header: "Kostensoort", key: "costType" },
-        { header: "Gefactureerd", key: "invoiced", style: { numFormat: "0.00" } }
-      ];
-      reportActiveInactiveData.forEach(r => {
-        ws1.addRow({
-          devType: r.deviationType,
-          plate: r.plate,
-          status: r.status,
-          since: r.statusSince,
-          leasCo: r.leasCo,
-          invNum: r.invoiceNum,
-          invDate: r.invoiceDate,
-          costType: r.costType,
-          invoiced: r.invoiced === "" ? "" : Number(r.invoiced.toFixed(2))
-        });
-      });
-      formatWorksheet(ws1);
+      const sheet2Rows = reportLeaseData.map(r => ({
+        "Soort afwijking": r.deviationType,
+        "Kenteken": r.plate,
+        "Status": r.status,
+        "Status sinds": r.statusSince,
+        "Leasemaatschappij factuur": r.leasCo,
+        "Factuurnummer": r.invoiceNum,
+        "Factuurdatum": r.invoiceDate,
+        "Aantal regels (leasetarief)": r.lineCount,
+        "Gefactureerd": Number(r.invoiced.toFixed(2)),
+        "Kosten volgens TraXall": Number(r.traxallCosts.toFixed(2)),
+        "Verschil": Number(r.difference.toFixed(2))
+      }));
 
-      // --- Blad 2: Leasetarief ---
-      const ws2 = workbook.addWorksheet("Leasetarief");
-      ws2.columns = [
-        { header: "Soort afwijking", key: "devType" },
-        { header: "Kenteken", key: "plate" },
-        { header: "Status", key: "status" },
-        { header: "Status sinds", key: "since" },
-        { header: "Leasemaatschappij factuur", key: "leasCo" },
-        { header: "Factuurnummer", key: "invNum" },
-        { header: "Factuurdatum", key: "invDate" },
-        { header: "Aantal regels (leasetarief)", key: "lineCount" },
-        { header: "Gefactureerd", key: "invoiced", style: { numFormat: "0.00" } },
-        { header: "Kosten volgens TraXall", key: "traxall", style: { numFormat: "0.00" } },
-        { header: "Verschil", key: "diff", style: { numFormat: "0.00" } }
-      ];
-      reportLeaseData.forEach(r => {
-        ws2.addRow({
-          devType: r.deviationType,
-          plate: r.plate,
-          status: r.status,
-          since: r.statusSince,
-          leasCo: r.leasCo,
-          invNum: r.invoiceNum,
-          invDate: r.invoiceDate,
-          lineCount: r.lineCount,
-          invoiced: Number(r.invoiced.toFixed(2)),
-          traxall: Number(r.traxallCosts.toFixed(2)),
-          diff: Number(r.difference.toFixed(2))
-        });
-      });
-      formatWorksheet(ws2);
+      const sheet3Rows = reportDamageData.map(r => ({
+        "Soort afwijking": r.deviationType,
+        "Kenteken": r.plate,
+        "Status": r.status,
+        "Status sinds": r.statusSince,
+        "Leasemaatschappij factuur": r.leasCo,
+        "Factuurnummer": r.invoiceNum,
+        "Factuurdatum": r.invoiceDate,
+        "Kostensoort": r.costType,
+        "Gefactureerd": Number(r.invoiced.toFixed(2)),
+        "Overschot vervangend vervoer": r.replacementSurplus === "" ? "" : Number(r.replacementSurplus.toFixed(2))
+      }));
 
-      // --- Blad 3: Schades-Vervangend vervoer ---
-      const ws3 = workbook.addWorksheet("Schades-Vervangend vervoer");
-      ws3.columns = [
-        { header: "Soort afwijking", key: "devType" },
-        { header: "Kenteken", key: "plate" },
-        { header: "Status", key: "status" },
-        { header: "Status sinds", key: "since" },
-        { header: "Leasemaatschappij factuur", key: "leasCo" },
-        { header: "Factuurnummer", key: "invNum" },
-        { header: "Factuurdatum", key: "invDate" },
-        { header: "Kostensoort", key: "costType" },
-        { header: "Gefactureerd", key: "invoiced", style: { numFormat: "0.00" } },
-        { header: "Overschot vervangend vervoer", key: "surplus", style: { numFormat: "0.00" } }
-      ];
-      reportDamageData.forEach(r => {
-        ws3.addRow({
-          devType: r.deviationType,
-          plate: r.plate,
-          status: r.status,
-          since: r.statusSince,
-          leasCo: r.leasCo,
-          invNum: r.invoiceNum,
-          invDate: r.invoiceDate,
-          costType: r.costType,
-          invoiced: Number(r.invoiced.toFixed(2)),
-          surplus: r.replacementSurplus === "" ? "" : Number(r.replacementSurplus.toFixed(2))
-        });
-      });
-      formatWorksheet(ws3);
+      const wb = XLSX.utils.book_new();
 
-      // --- Genereer bestand en start download ---
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      const link = document.createElement("a");
+      const ws1 = XLSX.utils.json_to_sheet(sheet1Rows);
+      applyExcelStyles(ws1, sheet1Rows.length, ["I"]);
+      XLSX.utils.book_append_sheet(wb, ws1, "Actief-Inactief");
+
+      const ws2 = XLSX.utils.json_to_sheet(sheet2Rows);
+      applyExcelStyles(ws2, sheet2Rows.length, ["I", "J", "K"]);
+      XLSX.utils.book_append_sheet(wb, ws2, "Leasetarief");
+
+      const ws3 = XLSX.utils.json_to_sheet(sheet3Rows);
+      applyExcelStyles(ws3, sheet3Rows.length, ["I", "J"]);
+      XLSX.utils.book_append_sheet(wb, ws3, "Schades-Vervangend vervoer");
+
       const stamp = new Date().toISOString().slice(0, 10);
-      
-      link.href = URL.createObjectURL(blob);
-      link.download = `TraXall_Invoice_Analyse_${stamp}.xlsx`;
-      link.click();
-      URL.revokeObjectURL(link.href);
+      XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
     }
 
-    // Helperfunctie om filters in te stellen, kolombreedtes te optimaliseren én rij 1 BOLD te maken
-    function formatWorksheet(ws) {
-      if (ws.actualRowCount === 0) return;
+    function applyExcelStyles(ws, rowCount, numCols) {
+      if (!ws["!ref"]) return;
+      const range = XLSX.utils.decode_range(ws["!ref"]);
+      
+      // Voeg de autofilter toe over het gehele bereik van de gevulde cellen
+      ws['!autofilter'] = { ref: ws["!ref"] };
 
-      // 1. Zet de Autofilter aan over het volledige databereik
-      ws.autoFilter = {
-        from: { row: 1, column: 1 },
-        to: { row: ws.actualRowCount, column: ws.columns.length }
-      };
+      // Maak de headers (rij 0) dikgedrukt
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!ws[cellAddress]) continue;
+        if (!ws[cellAddress].s) ws[cellAddress].s = {};
+        ws[cellAddress].s.font = { bold: true };
+      }
 
-      // 2. Maak de eerste rij (Header) BOLD
-      const headerRow = ws.getRow(1);
-      headerRow.font = { bold: true };
-
-      // 3. Automatische kolombreedte aanpassen op basis van de langste tekst
-      ws.columns.forEach(column => {
-        let maxColumnLength = 0;
-        column.eachCell({ includeEmpty: true }, cell => {
-          const cellLength = cell.value ? cell.value.toString().length : 0;
-          if (cellLength > maxColumnLength) {
-            maxColumnLength = cellLength;
-          }
-        });
-        column.width = Math.max(maxColumnLength + 4, 12); // Voeg extra padding toe voor de filterpijltjes
-      });
+      // Formatteer de numerieke kolommen
+      if (rowCount > 0) {
+        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+          numCols.forEach(colLetter => {
+            const cell = ws[colLetter + (R + 1)];
+            if (cell && typeof cell.v === "number") cell.z = "0.00";
+          });
+        }
+      }
     }
   </script>
 </body>
