@@ -341,7 +341,7 @@
         <ul>
           <li><strong>Actief-Inactief:</strong> Bevat alle actieve auto's zonder factuur óf inactieve auto's mét factuur.</li>
           <li><strong>Leasetarief:</strong> Verschil groter dan het ingestelde bedrag én het ingestelde percentage van de contractwaarde.</li>
-          <li><strong>Schades-Vervangend vervoer:</strong> Bevat schadebedragen die het ingestelde eigen risico overschrijden and vervangend vervoer bedragen die 13% van het leasetarief overschrijden. Credits worden genegeerd.</li>
+          <li><strong>Schades-Vervangend vervoer:</strong> Bevat schadebedragen die het ingestelde eigen risico overschrijden en vervangend vervoer bedragen die 13% van het leasetarief overschrijden. Credits worden genegeerd.</li>
         </ul>
       </div>
 
@@ -821,7 +821,8 @@
         "Overschot vervangend vervoer": r.replacementSurplus === "" ? "" : Number(r.replacementSurplus.toFixed(2))
       }));
 
-      const wb = XLSX.book_new();
+      // Hier ging het mis; gecorrigeerd naar XLSX.utils.book_new()
+      const wb = XLSX.utils.book_new();
 
       const ws1 = XLSX.utils.json_to_sheet(sheet1Rows);
       applyExcelStyles(ws1, sheet1Rows.length, ["I"]);
@@ -837,7 +838,7 @@
 
       const stamp = new Date().toISOString().slice(0, 10);
       
-      // Essentiële toevoeging: bookFiles forceert SheetJS om de interne structuur (inclusief filters) correct op te slaan
+      // Sla op met de bookFiles structuur geforceerd om autofilters te garanderen
       XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`, { bookFiles: true });
     }
 
@@ -845,7 +846,7 @@
       if (!ws["!ref"]) return;
       const range = XLSX.utils.decode_range(ws["!ref"]);
       
-      // Activeer de filterbalk over de gehele tabelbreedte
+      // Activeer de filterbalk over de gevulde tabelbreedte
       ws['!autofilter'] = { ref: ws["!ref"] };
 
       // Maak de headers (rij 0) dikgedrukt
@@ -856,7 +857,7 @@
         ws[cellAddress].s.font = { bold: true };
       }
 
-      // Formatteer de numerieke kolommen
+      // Formatteer de numerieke kolommen naar twee decimalen
       if (rowCount > 0) {
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
           numCols.forEach(colLetter => {
