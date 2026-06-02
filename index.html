@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TraXall Invoice Matcher</title>
+  <title>TraXall Factuurcontrole</title>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <style>
     body, html {
@@ -267,8 +267,7 @@
         <div class="image-container">
           <img src="logo-traxall.png" alt="TraXall logo" />
         </div>
-        <h1>TraXall Invoice Matcher</h1>
-        <p>Groepeer contractkosten per kenteken en vergelijk met fleet.</p>
+        <h1>TraXall Factuurcontrole</h1>
 
         <div class="dropbox">
           <strong>Kostenexport TraX-it</strong>
@@ -325,11 +324,10 @@
         <h2>Criteria & Logica</h2>
         <p>Correct gefactureerde kentekens worden automatisch weggelaten.</p>
         <ul>
-          <li><strong>Blad Actief-Inactief:</strong> Bevat alle actieve auto's zonder factuur óf inactieve auto's mét factuur.</li>
-          <li><strong>Schade hoger dan eigen risico:</strong> Schadebedragen die het ingestelde eigen risico overschrijden.</li>
-          <li><strong>Verschil leasetarief:</strong> Verschil tussen factuur en contract groter dan de ingestelde negeer-marge.</li>
-          <li><strong>Vervangend vervoer hoog bedrag:</strong> Kosten overschrijden 13% van het fleet leasetarief. Credits (< €0) worden overgeslagen.</li>
-        </ul>
+          <li><strong>Actief-Inactief:</strong> Bevat alle actieve auto's zonder factuur óf inactieve auto's mét factuur.</li>
+          <li><strong>Leasetarief:</strong> Verschil van leaseprijs tussen factuur en contract groter dan de ingestelde negeer-marge.</li>
+          <li><strong>Schades-Vervangend vervoer:</strong> Bevat schadebedragen die het ingestelde eigen risico overschrijden en vervangend vervoer bedragen die 13% van het leasetarief overschrijden. Credits worden genegeerd</li>
+          </ul>
       </div>
 
     </div>
