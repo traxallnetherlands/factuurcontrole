@@ -343,7 +343,7 @@
 
   </div>
 
-  <script>
+  <script {removed_for_privacy}>
     const FLEET_PLATE_COL = "License Plate";
     const FLEET_CONTRACT_COL = "Monthly Contractual VATex";
     const FLEET_STATUS_COL = "Status";
@@ -646,14 +646,14 @@
           }
         });
 
-        // AFWIJKING: Actief kenteken niet gefactureerd -> Gaat naar 'Actief-Inactief' en nergens anders!
+        // AFWIJKING: Actief kenteken niet gefactureerd -> Gaat naar 'Actief-Inactief'
         unvisitedActivePlates.forEach(plate => {
           const f = fleetMap[plate];
           reportActiveInactiveData.push({
             deviationType: "Actief - Niet gefactureerd",
             plate: plate,
             status: f.statusRaw,
-            statusSince: "", // Velden leeglaten conform instructie
+            statusSince: f.statusSince, // Nu correct gevuld via de fleet overview data
             leasCo: "",
             invoiceNum: "",
             invoiceDate: "",
