@@ -317,7 +317,7 @@
         <div class="form-group">
           <div class="form-row">
             <label for="ownRiskAmount">Eigen risico bedrag klant:</label>
-            <input type="number" id="ownRiskAmount" value="0.00" step="0.01" min="0" />
+            <input type="number" id="ownRiskAmount" value="0.00" step="5.00" min="0.00" />
           </div>
         </div>
 
@@ -344,7 +344,7 @@
           <li><strong>Actief-Inactief:</strong> Bevat alle actieve auto's zonder factuur óf inactieve auto's mét factuur.</li>
           <li><strong>Leasetarief:</strong> Verschil groter dan het ingestelde bedrag én het ingestelde percentage van de contractwaarde.</li>
           <li><strong>Schades-Vervangend vervoer:</strong> Bevat schadebedragen die het ingestelde eigen risico overschrijden en vervangend vervoer bedragen die 13% van het leasetarief overschrijden. Credits worden genegeerd.</li>
-          <li><strong>Variabele kosten:</strong> Bevat alle gefactureerde regels van variabele kosten.</li>
+          <li><strong>Boetes en Variabele kosten:</strong> Bevat alle gefactureerde boetes en variabele kosten.</li>
         </ul>
       </div>
 
@@ -567,8 +567,8 @@
           }
 
           if (!isInactive) {
-            // Check op 'Variabele kosten'
-            if (costType === "Variabele kosten" && Math.abs(htAmount) > 0.001) {
+            // Check op 'Variabele kosten' OF 'Boetes'
+            if ((costType === "Variabele kosten" || costType === "Boetes") && Math.abs(htAmount) > 0.001) {
               reportVariableCostsData.push({
                 plate: plate,
                 status: f ? f.statusRaw : "Actief",
@@ -576,7 +576,7 @@
                 leasCo: leasCoInvoice || (f ? f.leasCo : ""),
                 invoiceNum: invoiceNum,
                 invoiceDate: invoiceDate,
-                costType: product || "Variabel",
+                costType: product || costType,
                 invoiced: htAmount
               });
               return; 
@@ -797,9 +797,9 @@
         html += `</table></div>`;
       }
 
-      // 4. Tabel Variabele kosten
+      // 4. Tabel Boetes en Variabele kosten
       if (reportVariableCostsData.length > 0) {
-        html += `<div class="table-section-title">Variabele kosten (${reportVariableCostsData.length} regels)</div>`;
+        html += `<div class="table-section-title">Boetes en Variabele kosten (${reportVariableCostsData.length} regels)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Kenteken</th><th>Status</th><th>Status sinds</th>
@@ -892,7 +892,7 @@
 
       const ws4 = XLSX.utils.json_to_sheet(sheet4Rows);
       applyExcelStyles(ws4, sheet4Rows.length, ["H"]);
-      XLSX.utils.book_append_sheet(wb, ws4, "Variabele kosten");
+      XLSX.utils.book_append_sheet(wb, ws4, "Boetes en Variabele kosten");
 
       const stamp = new Date().toISOString().slice(0, 10);
       XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
