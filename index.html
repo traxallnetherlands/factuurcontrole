@@ -305,6 +305,13 @@
           </div>
         </div>
 
+        <div class="form-group">
+          <div class="form-row">
+            <label for="ignoreContractAdj">Contractaanpassingen binnen bedrag negeren (€):</label>
+            <input type="number" id="ignoreContractAdj" value="0" step="1" min="0" />
+          </div>
+        </div>
+
         <br>
 
         <div class="form-group">
@@ -344,8 +351,8 @@
           </li>
           
           <li style="margin-bottom: 15px;">
-            <strong>Boetes en Variabele kosten:</strong><br>
-            Bevat alle gefactureerde boetes en variabele kosten.
+            <strong>Diverse kosten:</strong><br>
+            Bevat alle gefactureerde boetes, contractaanpassingen, meerkilometers, poolkosten en variabele kosten.
           </li>
         </ul>
       </div>
@@ -483,6 +490,7 @@
 
       const leaseAmtThreshold = Math.abs(parseFloat(document.getElementById("ignoreLeaseDiff").value)) || 0;
       const ownRiskThreshold = parseFloat(document.getElementById("ownRiskAmount").value) || 0;
+      const ignoreContractAdjThreshold = Math.abs(parseFloat(document.getElementById("ignoreContractAdj").value)) || 0;
       const ignoredDamages = Array.from(document.querySelectorAll('.damage-ignore:checked')).map(cb => cb.value.toLowerCase());
 
       try {
@@ -568,8 +576,22 @@
           }
 
           if (!isInactive) {
-            // Check op 'Variabele kosten' OF 'Boetes'
-            if ((costType === "Variabele kosten" || costType === "Boetes") && Math.abs(htAmount) > 0.001) {
+            const costTypeLower = costType.toLowerCase();
+            const productLower = product.toLowerCase();
+
+            // Check voor 'Diverse kosten' (Boetes, Variabele kosten, Poolkosten, Contractaanpassingen, Meerkilometers)
+            const isVariableOrFine = costType === "Variabele kosten" || costType === "Boetes";
+            const isPool = costTypeLower.includes("pool");
+            const isContractAdj = productLower === "contract aanpassing";
+            const isExtraKm = productLower === "meerkilometers";
+
+            if ((isVariableOrFine || isPool || isContractAdj || isExtraKm) && Math.abs(htAmount) > 0.001) {
+              
+              // Als het een Contract aanpassing is, controleer de marge
+              if (isContractAdj && Math.abs(htAmount) <= ignoreContractAdjThreshold) {
+                return; // Negeren binnen drempelwaarde
+              }
+
               reportVariableCostsData.push({
                 plate: plate,
                 status: f ? f.statusRaw : "Actief",
@@ -608,10 +630,10 @@
               'bandenschade', 'diefstal', 'eigen risico', 
               'onderhoud doorbelast', 'overige schadekosten', 
               'ruitschade', 'schade'
-            ].includes(product.toLowerCase());
+            ].includes(productLower);
 
             if (isDamageProduct) {
-              if (ignoredDamages.includes(product.toLowerCase())) return;
+              if (ignoredDamages.includes(productLower)) return;
               
               if (htAmount > ownRiskThreshold) {
                 reportDamageData.push({
@@ -630,7 +652,7 @@
             }
 
             // Vervangend vervoer hoog bedrag
-            const isVV = product.toLowerCase().includes("vervangend vervoer") || costType.toLowerCase().includes("vervangend vervoer");
+            const isVV = productLower.includes("vervangend vervoer") || costTypeLower.includes("vervangend vervoer");
             if (isVV) {
               if (htAmount < 0) return; 
 
@@ -796,9 +818,9 @@
         html += `</table></div>`;
       }
 
-      // 4. Tabel Boetes en Variabele kosten
+      // 4. Tabel Diverse kosten
       if (reportVariableCostsData.length > 0) {
-        html += `<div class="table-section-title">Boetes en Variabele kosten (${reportVariableCostsData.length} regels)</div>`;
+        html += `<div class="table-section-title">Diverse kosten (${reportVariableCostsData.length} regels)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Kenteken</th><th>Status</th><th>Status sinds</th>
@@ -891,7 +913,7 @@
 
       const ws4 = XLSX.utils.json_to_sheet(sheet4Rows);
       applyExcelStyles(ws4, sheet4Rows.length, ["H"]);
-      XLSX.utils.book_append_sheet(wb, ws4, "Boetes en Variabele kosten");
+      XLSX.utils.book_append_sheet(wb, ws4, "Diverse kosten");
 
       const stamp = new Date().toISOString().slice(0, 10);
       XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
