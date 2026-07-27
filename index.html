@@ -369,12 +369,6 @@
   </div>
 
   <script>
-    const FLEET_PLATE_COL = "License Plate";
-    const FLEET_CONTRACT_COL = "Monthly Contractual VATex";
-    const FLEET_STATUS_COL = "Status";
-    const FLEET_LEASCO_COL = "Lease Company"; 
-    const FLEET_STATUS_DATE_COL = "Status since"; 
-
     const STATUS_ACTIVE = "actief";
     const STATUS_RETURNING = "inleverproces bezig";
     const STATUS_INACTIVE = "inactief";
@@ -515,15 +509,15 @@
 
         // 1. Bouw Fleet Kaart
         fleet.forEach(f => {
-          const plate = cleanPlate(f[FLEET_PLATE_COL]);
+          const plate = cleanPlate(getFleetValue(f, ["License Plate", "Kenteken"]));
           if (!plate) return;
 
           const financingMethod = getFleetValue(f, ["Financing Method", "Financing method", "Financing", "Financieringsmethode", "Financiering"]);
-          const contractNum = toNumber(f[FLEET_CONTRACT_COL]);
-          const statusRaw = f[FLEET_STATUS_COL] || "";
+          const contractNum = toNumber(getFleetValue(f, ["Monthly Contractual VATex", "Monthly Contractual", "Contractual VATex", "Leasetarief"]));
+          const statusRaw = getFleetValue(f, ["Status"]) || "";
           const statusNorm = normalizeFleetStatus(statusRaw);
-          const statusSince = formatDate(f[FLEET_STATUS_DATE_COL]);
-          const leasCo = f[FLEET_LEASCO_COL] || "";
+          const statusSince = formatDate(getFleetValue(f, ["Status since", "Status sinds"]));
+          const leasCo = getFleetValue(f, ["Lease Company", "Leasemaatschappij"]) || "";
 
           fleetMap[plate] = {
             financingMethod,
@@ -595,6 +589,61 @@
             const costTypeLower = costType.toLowerCase();
             const productLower = product.toLowerCase();
 
+            // Vervangend vervoer (Moet VÓÓR diverse/variabele kosten gecontroleerd worden!)
+            const isVV = productLower.includes("vervangend vervoer") || costTypeLower.includes("vervangend vervoer");
+            if (isVV) {
+              if (htAmount > 0) {
+                const leaseTariffFleet = f ? f.contractNum : 0;
+                const maxAllowedVV = leaseTariffFleet * 0.13;
+                
+                if (htAmount > maxAllowedVV) {
+                  const surplus = htAmount - maxAllowedVV;
+                  reportDamageData.push({
+                    deviationType: "Vervangend vervoer hoog bedrag",
+                    plate: plate,
+                    financingMethod: financingMethod,
+                    status: f ? f.statusRaw : "Actief",
+                    statusSince: f ? f.statusSince : "",
+                    leasCo: leasCoInvoice || (f ? f.leasCo : ""),
+                    invoiceNum: invoiceNum,
+                    invoiceDate: invoiceDate,
+                    costType: product || costType,
+                    invoiced: htAmount,
+                    replacementSurplus: surplus
+                  });
+                }
+              }
+              return; // Altijd afhandelen zodat het niet in overige categorieën belandt
+            }
+
+            // Schades
+            const isDamageProduct = [
+              'bandenschade', 'diefstal', 'eigen risico', 
+              'onderhoud doorbelast', 'overige schadekosten', 
+              'ruitschade', 'schade'
+            ].includes(productLower);
+
+            if (isDamageProduct) {
+              if (ignoredDamages.includes(productLower)) return;
+              
+              if (htAmount > ownRiskThreshold) {
+                reportDamageData.push({
+                  deviationType: "Schade hoger dan eigen risico",
+                  plate: plate,
+                  financingMethod: financingMethod,
+                  status: f ? f.statusRaw : "Actief",
+                  statusSince: f ? f.statusSince : "",
+                  leasCo: leasCoInvoice || (f ? f.leasCo : ""),
+                  invoiceNum: invoiceNum,
+                  invoiceDate: invoiceDate,
+                  costType: product,
+                  invoiced: htAmount,
+                  replacementSurplus: ""
+                });
+              }
+              return;
+            }
+
             // Check voor 'Diverse kosten' (Boetes, Variabele kosten, Poolkosten, Contractaanpassingen, Meerkilometers)
             const isVariableOrFine = costType === "Variabele kosten" || costType === "Boetes";
             const isPool = costTypeLower.includes("pool");
@@ -641,59 +690,6 @@
               if (invoiceNum) aggLease[plate].invoiceNums.add(invoiceNum);
               if (invoiceDate) aggLease[plate].invoiceDates.add(invoiceDate);
               if (leasCoInvoice) aggLease[plate].leasCo = leasCoInvoice;
-            }
-
-            // Schades
-            const isDamageProduct = [
-              'bandenschade', 'diefstal', 'eigen risico', 
-              'onderhoud doorbelast', 'overige schadekosten', 
-              'ruitschade', 'schade'
-            ].includes(productLower);
-
-            if (isDamageProduct) {
-              if (ignoredDamages.includes(productLower)) return;
-              
-              if (htAmount > ownRiskThreshold) {
-                reportDamageData.push({
-                  deviationType: "Schade hoger dan eigen risico",
-                  plate: plate,
-                  financingMethod: financingMethod,
-                  status: f ? f.statusRaw : "Actief",
-                  statusSince: f ? f.statusSince : "",
-                  leasCo: leasCoInvoice || (f ? f.leasCo : ""),
-                  invoiceNum: invoiceNum,
-                  invoiceDate: invoiceDate,
-                  costType: product,
-                  invoiced: htAmount,
-                  replacementSurplus: ""
-                });
-              }
-            }
-
-            // Vervangend vervoer hoog bedrag
-            const isVV = productLower.includes("vervangend vervoer") || costTypeLower.includes("vervangend vervoer");
-            if (isVV) {
-              if (htAmount < 0) return; 
-
-              const leaseTariffFleet = f ? f.contractNum : 0;
-              const maxAllowedVV = leaseTariffFleet * 0.13;
-              
-              if (htAmount > maxAllowedVV) {
-                const surplus = htAmount - maxAllowedVV;
-                reportDamageData.push({
-                  deviationType: "Vervangend vervoer hoog bedrag",
-                  plate: plate,
-                  financingMethod: financingMethod,
-                  status: f ? f.statusRaw : "Actief",
-                  statusSince: f ? f.statusSince : "",
-                  leasCo: leasCoInvoice || (f ? f.leasCo : ""),
-                  invoiceNum: invoiceNum,
-                  invoiceDate: invoiceDate,
-                  costType: product,
-                  invoiced: htAmount,
-                  replacementSurplus: surplus
-                });
-              }
             }
           }
         });
