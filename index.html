@@ -293,7 +293,7 @@
         
         <div class="form-group">
           <div class="form-row">
-            <label for="ignoreLeaseDiff">Verschil in leasetarief negeren:</label>
+            <label for="ignoreLeaseDiff">Verschil in leasetarief negeren (€):</label>
             <input type="number" id="ignoreLeaseDiff" value="0.05" step="0.01" min="0" />
           </div>
         </div>
@@ -307,7 +307,7 @@
 
         <div class="form-group">
           <div class="form-row">
-            <label for="ignoreContractAdj">Contractaanpassingen binnen bedrag negeren:</label>
+            <label for="ignoreContractAdj">Contractaanpassingen binnen bedrag negeren (€):</label>
             <input type="number" id="ignoreContractAdj" value="0" step="1" min="0" />
           </div>
         </div>
@@ -370,6 +370,7 @@
 
   <script>
     const FLEET_PLATE_COL = "License Plate";
+    const FLEET_FINANCING_COL = "Financing method";
     const FLEET_CONTRACT_COL = "Monthly Contractual VATex";
     const FLEET_STATUS_COL = "Status";
     const FLEET_LEASCO_COL = "Lease Company"; 
@@ -506,6 +507,7 @@
           const plate = cleanPlate(f[FLEET_PLATE_COL]);
           if (!plate) return;
 
+          const financingMethod = (f[FLEET_FINANCING_COL] || "").toString().trim();
           const contractNum = toNumber(f[FLEET_CONTRACT_COL]);
           const statusRaw = f[FLEET_STATUS_COL] || "";
           const statusNorm = normalizeFleetStatus(statusRaw);
@@ -513,6 +515,7 @@
           const leasCo = f[FLEET_LEASCO_COL] || "";
 
           fleetMap[plate] = {
+            financingMethod,
             contractNum,
             statusRaw,
             statusNorm,
@@ -553,6 +556,7 @@
           const leasCoInvoice = (r["Fournisseur"] || r["Nom_fournisseur"] || "").toString().trim();
 
           const f = fleetMap[plate];
+          const financingMethod = f ? f.financingMethod : "";
           const isInactive = f && f.statusNorm === STATUS_INACTIVE;
 
           if (f) {
@@ -564,6 +568,7 @@
             reportActiveInactiveData.push({
               deviationType: "Inactief - gefactureerd",
               plate: plate,
+              financingMethod: financingMethod,
               status: f ? f.statusRaw : "Inactief",
               statusSince: f ? f.statusSince : "",
               leasCo: leasCoInvoice || (f ? f.leasCo : ""),
@@ -594,6 +599,7 @@
 
               reportVariableCostsData.push({
                 plate: plate,
+                financingMethod: financingMethod,
                 status: f ? f.statusRaw : "Actief",
                 statusSince: f ? f.statusSince : "",
                 leasCo: leasCoInvoice || (f ? f.leasCo : ""),
@@ -610,6 +616,7 @@
               if (!aggLease[plate]) {
                 aggLease[plate] = {
                   plate: plate,
+                  financingMethod: financingMethod,
                   lineCount: 0,
                   invoicedSum: 0,
                   invoiceNums: new Set(),
@@ -639,6 +646,7 @@
                 reportDamageData.push({
                   deviationType: "Schade hoger dan eigen risico",
                   plate: plate,
+                  financingMethod: financingMethod,
                   status: f ? f.statusRaw : "Actief",
                   statusSince: f ? f.statusSince : "",
                   leasCo: leasCoInvoice || (f ? f.leasCo : ""),
@@ -664,6 +672,7 @@
                 reportDamageData.push({
                   deviationType: "Vervangend vervoer hoog bedrag",
                   plate: plate,
+                  financingMethod: financingMethod,
                   status: f ? f.statusRaw : "Actief",
                   statusSince: f ? f.statusSince : "",
                   leasCo: leasCoInvoice || (f ? f.leasCo : ""),
@@ -690,6 +699,7 @@
             reportLeaseData.push({
               deviationType: "Verschil leasetarief",
               plate: plate,
+              financingMethod: a.financingMethod,
               status: f ? f.statusRaw : "Niet in fleet",
               statusSince: f ? f.statusSince : "",
               leasCo: a.leasCo || (f ? f.leasCo : ""),
@@ -709,6 +719,7 @@
           reportActiveInactiveData.push({
             deviationType: "Actief - Niet gefactureerd",
             plate: plate,
+            financingMethod: f ? f.financingMethod : "",
             status: f ? f.statusRaw : "Actief",
             statusSince: f ? f.statusSince : "", 
             leasCo: "",
@@ -744,7 +755,7 @@
         html += `<div class="table-section-title">Actief-Inactief (${reportActiveInactiveData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
-          <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
+          <th>Soort afwijking</th><th>Kenteken</th><th>Financieringsmethode</th><th>Status</th><th>Status sinds</th>
           <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th><th>Kostensoort</th><th>Gefactureerd</th>
         </tr>`;
         reportActiveInactiveData.forEach(r => {
@@ -752,6 +763,7 @@
           html += `<tr>
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
+            <td>${r.financingMethod}</td>
             <td>${r.status}</td>
             <td>${r.statusSince}</td>
             <td>${r.leasCo}</td>
@@ -769,7 +781,7 @@
         html += `<div class="table-section-title">Leasetarief (${reportLeaseData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
-          <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
+          <th>Soort afwijking</th><th>Kenteken</th><th>Financieringsmethode</th><th>Status</th><th>Status sinds</th>
           <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Aantal regels</th><th>Gefactureerd</th><th>Kosten volgens TraXall</th><th>Verschil</th>
         </tr>`;
@@ -777,6 +789,7 @@
           html += `<tr>
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
+            <td>${r.financingMethod}</td>
             <td>${r.status}</td>
             <td>${r.statusSince}</td>
             <td>${r.leasCo}</td>
@@ -796,7 +809,7 @@
         html += `<div class="table-section-title">Schades-Vervangend vervoer (${reportDamageData.length} afwijkingen)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
-          <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
+          <th>Soort afwijking</th><th>Kenteken</th><th>Financieringsmethode</th><th>Status</th><th>Status sinds</th>
           <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Kostensoort</th><th>Gefactureerd</th><th>Overschot verv. vervoer</th>
         </tr>`;
@@ -805,6 +818,7 @@
           html += `<tr>
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
+            <td>${r.financingMethod}</td>
             <td>${r.status}</td>
             <td>${r.statusSince}</td>
             <td>${r.leasCo}</td>
@@ -823,13 +837,14 @@
         html += `<div class="table-section-title">Diverse kosten (${reportVariableCostsData.length} regels)</div>`;
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
-          <th>Kenteken</th><th>Status</th><th>Status sinds</th>
+          <th>Kenteken</th><th>Financieringsmethode</th><th>Status</th><th>Status sinds</th>
           <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Kostensoort</th><th>Gefactureerd</th>
         </tr>`;
         reportVariableCostsData.forEach(r => {
           html += `<tr>
             <td><strong>${r.plate}</strong></td>
+            <td>${r.financingMethod}</td>
             <td>${r.status}</td>
             <td>${r.statusSince}</td>
             <td>${r.leasCo}</td>
@@ -850,6 +865,7 @@
       const sheet1Rows = reportActiveInactiveData.map(r => ({
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
+        "Financieringsmethode": r.financingMethod,
         "Status": r.status,
         "Status sinds": r.statusSince,
         "Leasemaatschappij factuur": r.leasCo,
@@ -862,6 +878,7 @@
       const sheet2Rows = reportLeaseData.map(r => ({
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
+        "Financieringsmethode": r.financingMethod,
         "Status": r.status,
         "Status sinds": r.statusSince,
         "Leasemaatschappij factuur": r.leasCo,
@@ -876,6 +893,7 @@
       const sheet3Rows = reportDamageData.map(r => ({
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
+        "Financieringsmethode": r.financingMethod,
         "Status": r.status,
         "Status sinds": r.statusSince,
         "Leasemaatschappij factuur": r.leasCo,
@@ -888,6 +906,7 @@
 
       const sheet4Rows = reportVariableCostsData.map(r => ({
         "Kenteken": r.plate,
+        "Financieringsmethode": r.financingMethod,
         "Status": r.status,
         "Status sinds": r.statusSince,
         "Leasemaatschappij factuur": r.leasCo,
@@ -900,19 +919,19 @@
       const wb = XLSX.utils.book_new();
 
       const ws1 = XLSX.utils.json_to_sheet(sheet1Rows);
-      applyExcelStyles(ws1, sheet1Rows.length, ["I"]);
+      applyExcelStyles(ws1, sheet1Rows.length, ["J"]);
       XLSX.utils.book_append_sheet(wb, ws1, "Actief-Inactief");
 
       const ws2 = XLSX.utils.json_to_sheet(sheet2Rows);
-      applyExcelStyles(ws2, sheet2Rows.length, ["I", "J", "K"]);
+      applyExcelStyles(ws2, sheet2Rows.length, ["J", "K", "L"]);
       XLSX.utils.book_append_sheet(wb, ws2, "Leasetarief");
 
       const ws3 = XLSX.utils.json_to_sheet(sheet3Rows);
-      applyExcelStyles(ws3, sheet3Rows.length, ["I", "J"]);
+      applyExcelStyles(ws3, sheet3Rows.length, ["J", "K"]);
       XLSX.utils.book_append_sheet(wb, ws3, "Schades-Vervangend vervoer");
 
       const ws4 = XLSX.utils.json_to_sheet(sheet4Rows);
-      applyExcelStyles(ws4, sheet4Rows.length, ["H"]);
+      applyExcelStyles(ws4, sheet4Rows.length, ["I"]);
       XLSX.utils.book_append_sheet(wb, ws4, "Diverse kosten");
 
       const stamp = new Date().toISOString().slice(0, 10);
