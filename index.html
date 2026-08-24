@@ -461,6 +461,37 @@
       return v.toString().trim();
     }
 
+    function toExcelDate(v) {
+      if (v === null || v === undefined || v === "") return "";
+      if (v instanceof Date && !isNaN(v.getTime())) return v;
+
+      // Alleen één datum kan als echte Excel-datum in één cel worden opgeslagen.
+      // Bij samengestelde waarden, bijvoorbeeld meerdere factuurdatums, blijft de tekst behouden.
+      const s = v.toString().trim();
+      if (!s || s.includes(",")) return s;
+
+      let match = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/);
+      if (match) {
+        const day = Number(match[1]);
+        const month = Number(match[2]);
+        const year = Number(match[3]);
+        const d = new Date(year, month - 1, day);
+        if (d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day) return d;
+        return s;
+      }
+
+      match = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+      if (match) {
+        const year = Number(match[1]);
+        const month = Number(match[2]);
+        const day = Number(match[3]);
+        const d = new Date(year, month - 1, day);
+        if (d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day) return d;
+      }
+
+      return s;
+    }
+
     function normalizeFleetStatus(v) {
       const s = (v || "").toString().trim().toLowerCase();
       if (s === "active" || s === "actief") return STATUS_ACTIVE;
@@ -886,12 +917,12 @@
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
         "Status": r.status,
-        "Status sinds": r.statusSince,
+        "Status sinds": toExcelDate(r.statusSince),
         "Leasemaatschappij factuur": r.leasCo,
         "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": r.invoiceDate,
-        "Start factuurperiode": r.startDate,
-        "Eind factuurperiode": r.endDate,
+        "Factuurdatum": toExcelDate(r.invoiceDate),
+        "Start factuurperiode": toExcelDate(r.startDate),
+        "Eind factuurperiode": toExcelDate(r.endDate),
         "Kostensoort": r.costType,
         "Gefactureerd": r.invoiced === "" ? "" : Number(r.invoiced.toFixed(2))
       }));
@@ -900,12 +931,12 @@
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
         "Status": r.status,
-        "Status sinds": r.statusSince,
+        "Status sinds": toExcelDate(r.statusSince),
         "Leasemaatschappij factuur": r.leasCo,
         "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": r.invoiceDate,
-        "Start factuurperiode": r.startDate,
-        "Eind factuurperiode": r.endDate,
+        "Factuurdatum": toExcelDate(r.invoiceDate),
+        "Start factuurperiode": toExcelDate(r.startDate),
+        "Eind factuurperiode": toExcelDate(r.endDate),
         "Aantal regels (leasetarief)": r.lineCount,
         "Gefactureerd": Number(r.invoiced.toFixed(2)),
         "Kosten volgens TraXall": Number(r.traxallCosts.toFixed(2)),
@@ -916,12 +947,12 @@
         "Soort afwijking": r.deviationType,
         "Kenteken": r.plate,
         "Status": r.status,
-        "Status sinds": r.statusSince,
+        "Status sinds": toExcelDate(r.statusSince),
         "Leasemaatschappij factuur": r.leasCo,
         "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": r.invoiceDate,
-        "Start factuurperiode": r.startDate,
-        "Eind factuurperiode": r.endDate,
+        "Factuurdatum": toExcelDate(r.invoiceDate),
+        "Start factuurperiode": toExcelDate(r.startDate),
+        "Eind factuurperiode": toExcelDate(r.endDate),
         "Kostensoort": r.costType,
         "Gefactureerd": Number(r.invoiced.toFixed(2)),
         "Overschot vervangend vervoer": r.replacementSurplus === "" ? "" : Number(r.replacementSurplus.toFixed(2))
@@ -930,12 +961,12 @@
       const sheet4Rows = reportVariableCostsData.map(r => ({
         "Kenteken": r.plate,
         "Status": r.status,
-        "Status sinds": r.statusSince,
+        "Status sinds": toExcelDate(r.statusSince),
         "Leasemaatschappij factuur": r.leasCo,
         "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": r.invoiceDate,
-        "Start factuurperiode": r.startDate,
-        "Eind factuurperiode": r.endDate,
+        "Factuurdatum": toExcelDate(r.invoiceDate),
+        "Start factuurperiode": toExcelDate(r.startDate),
+        "Eind factuurperiode": toExcelDate(r.endDate),
         "Kostensoort": r.costType,
         "Gefactureerd": Number(r.invoiced.toFixed(2))
       }));
@@ -943,26 +974,26 @@
       const wb = XLSX.utils.book_new();
 
       const ws1 = XLSX.utils.json_to_sheet(sheet1Rows);
-      applyExcelStyles(ws1, sheet1Rows.length, ["K"]);
+      applyExcelStyles(ws1, sheet1Rows.length, ["K"], ["D", "G", "H", "I"]);
       XLSX.utils.book_append_sheet(wb, ws1, "Actief-Inactief");
 
       const ws2 = XLSX.utils.json_to_sheet(sheet2Rows);
-      applyExcelStyles(ws2, sheet2Rows.length, ["K", "L", "M"]);
+      applyExcelStyles(ws2, sheet2Rows.length, ["K", "L", "M"], ["D", "G", "H", "I"]);
       XLSX.utils.book_append_sheet(wb, ws2, "Leasetarief");
 
       const ws3 = XLSX.utils.json_to_sheet(sheet3Rows);
-      applyExcelStyles(ws3, sheet3Rows.length, ["K", "L"]);
+      applyExcelStyles(ws3, sheet3Rows.length, ["K", "L"], ["D", "G", "H", "I"]);
       XLSX.utils.book_append_sheet(wb, ws3, "Schades-Vervangend vervoer");
 
       const ws4 = XLSX.utils.json_to_sheet(sheet4Rows);
-      applyExcelStyles(ws4, sheet4Rows.length, ["J"]);
+      applyExcelStyles(ws4, sheet4Rows.length, ["J"], ["C", "F", "G", "H"]);
       XLSX.utils.book_append_sheet(wb, ws4, "Diverse kosten");
 
       const stamp = new Date().toISOString().slice(0, 10);
       XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
     }
 
-    function applyExcelStyles(ws, rowCount, numCols) {
+    function applyExcelStyles(ws, rowCount, numCols, dateCols) {
       if (!ws["!ref"]) return;
       const range = XLSX.utils.decode_range(ws["!ref"]);
       
@@ -980,6 +1011,14 @@
           numCols.forEach(colLetter => {
             const cell = ws[colLetter + (R + 1)];
             if (cell && typeof cell.v === "number") cell.z = "0.00";
+          });
+
+          dateCols.forEach(colLetter => {
+            const cell = ws[colLetter + (R + 1)];
+            if (cell && cell.v instanceof Date && !isNaN(cell.v.getTime())) {
+              cell.t = "d";
+              cell.z = "dd-mm-yyyy";
+            }
           });
         }
       }
