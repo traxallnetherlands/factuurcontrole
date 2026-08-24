@@ -240,11 +240,10 @@
       white-space: nowrap;
     }
 
-    .table tr:not(:first-child):nth-child(odd) td {
-      background-color: #f8f9fb;
+    .table tr.group-shaded td {
+      background-color: #e2e6ec;
     }
-
-    .bad {
+.bad {
       color: red;
       font-weight: 700;
     }
@@ -799,6 +798,7 @@
           });
         });
 
+        prepareAllGroupedReports();
         renderHTMLTables();
 
       } catch (err) {
@@ -806,6 +806,33 @@
         document.getElementById("result").innerHTML =
           `<p class='bad'>Fout bij het verwerken van de bestanden. Controleer de console (F12) voor details.</p>`;
       }
+    }
+
+    function prepareGroupedReport(rows) {
+      rows.sort((a, b) => {
+        const plateA = (a.plate || "").toString();
+        const plateB = (b.plate || "").toString();
+        return plateA.localeCompare(plateB, "nl", { numeric: true, sensitivity: "base" });
+      });
+
+      let previousPlate = null;
+      let groupIndex = -1;
+
+      rows.forEach(row => {
+        const currentPlate = cleanPlate(row.plate);
+        if (currentPlate !== previousPlate) {
+          groupIndex += 1;
+          previousPlate = currentPlate;
+        }
+        row._groupShaded = groupIndex % 2 === 1;
+      });
+    }
+
+    function prepareAllGroupedReports() {
+      prepareGroupedReport(reportActiveInactiveData);
+      prepareGroupedReport(reportLeaseData);
+      prepareGroupedReport(reportDamageData);
+      prepareGroupedReport(reportVariableCostsData);
     }
 
     function renderHTMLTables() {
@@ -830,7 +857,7 @@
         </tr>`;
         reportActiveInactiveData.forEach(r => {
           const infShow = r.invoiced === "" ? "" : "€ " + format2(r.invoiced);
-          html += `<tr>
+          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
@@ -858,7 +885,7 @@
           <th>Aantal regels</th><th>Gefactureerd</th><th>FullFleet</th><th>Verschil</th>
         </tr>`;
         reportLeaseData.forEach(r => {
-          html += `<tr>
+          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
@@ -889,7 +916,7 @@
         </tr>`;
         reportDamageData.forEach(r => {
           const surplusShow = r.replacementSurplus === "" ? "" : "€ " + format2(r.replacementSurplus);
-          html += `<tr>
+          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
@@ -918,7 +945,7 @@
           <th>Kostensoort</th><th>Gefactureerd</th>
         </tr>`;
         reportVariableCostsData.forEach(r => {
-          html += `<tr>
+          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
             <td class="align-right">${r.statusSince}</td>
@@ -1000,26 +1027,26 @@
       const wb = XLSX.utils.book_new();
 
       const ws1 = XLSX.utils.json_to_sheet(sheet1Rows);
-      applyExcelStyles(ws1, sheet1Rows.length, ["K"], ["D", "G", "H", "I"]);
+      applyExcelStyles(ws1, sheet1Rows.length, ["K"], ["D", "G", "H", "I"], "B");
       XLSX.utils.book_append_sheet(wb, ws1, "Actief-Inactief");
 
       const ws2 = XLSX.utils.json_to_sheet(sheet2Rows);
-      applyExcelStyles(ws2, sheet2Rows.length, ["K", "L", "M"], ["D", "G", "H", "I"]);
+      applyExcelStyles(ws2, sheet2Rows.length, ["K", "L", "M"], ["D", "G", "H", "I"], "B");
       XLSX.utils.book_append_sheet(wb, ws2, "Leasetarief");
 
       const ws3 = XLSX.utils.json_to_sheet(sheet3Rows);
-      applyExcelStyles(ws3, sheet3Rows.length, ["K", "L"], ["D", "G", "H", "I"]);
+      applyExcelStyles(ws3, sheet3Rows.length, ["K", "L"], ["D", "G", "H", "I"], "B");
       XLSX.utils.book_append_sheet(wb, ws3, "Schades-Vervangend vervoer");
 
       const ws4 = XLSX.utils.json_to_sheet(sheet4Rows);
-      applyExcelStyles(ws4, sheet4Rows.length, ["J"], ["C", "F", "G", "H"]);
+      applyExcelStyles(ws4, sheet4Rows.length, ["J"], ["C", "F", "G", "H"], "A");
       XLSX.utils.book_append_sheet(wb, ws4, "Diverse kosten");
 
       const stamp = new Date().toISOString().slice(0, 10);
       XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
     }
 
-    function applyExcelStyles(ws, rowCount, numCols, dateCols = []) {
+    function applyExcelStyles(ws, rowCount, numCols, dateCols = [], plateCol = "A") {
       if (!ws["!ref"]) return;
       const range = XLSX.utils.decode_range(ws["!ref"]);
       
@@ -1033,19 +1060,28 @@
       }
 
       if (rowCount > 0) {
+        let previousPlate = null;
+        let groupIndex = -1;
+
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-          // Tweede, vierde, zesde enz. gegevensrij lichtgrijs maken.
-          // R is nulgebaseerd en rij 0 is de kolomkop.
-          if (R % 2 === 0) {
+          const plateCell = ws[plateCol + (R + 1)];
+          const currentPlate = cleanPlate(plateCell ? plateCell.v : "");
+
+          if (currentPlate !== previousPlate) {
+            groupIndex += 1;
+            previousPlate = currentPlate;
+          }
+
+          if (groupIndex % 2 === 1) {
             for (let C = range.s.c; C <= range.e.c; ++C) {
-              const stripedCellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-              const stripedCell = ws[stripedCellAddress];
-              if (!stripedCell) continue;
-              if (!stripedCell.s) stripedCell.s = {};
-              stripedCell.s.fill = {
+              const groupedCellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+              const groupedCell = ws[groupedCellAddress];
+              if (!groupedCell) continue;
+              if (!groupedCell.s) groupedCell.s = {};
+              groupedCell.s.fill = {
                 patternType: "solid",
-                fgColor: { rgb: "F8F9FB" },
-                bgColor: { rgb: "F8F9FB" }
+                fgColor: { rgb: "BFC5CC" },
+                bgColor: { rgb: "BFC5CC" }
               };
             }
           }
