@@ -821,7 +821,7 @@
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
+          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Start factuurperiode</th><th>Eind factuurperiode</th><th>Kostensoort</th><th>Gefactureerd</th>
         </tr>`;
         reportActiveInactiveData.forEach(r => {
@@ -849,7 +849,7 @@
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
+          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Start factuurperiode</th><th>Eind factuurperiode</th>
           <th>Aantal regels</th><th>Gefactureerd</th><th>Kosten volgens TraXall</th><th>Verschil</th>
         </tr>`;
@@ -879,7 +879,7 @@
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
+          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Start factuurperiode</th><th>Eind factuurperiode</th>
           <th>Kostensoort</th><th>Gefactureerd</th><th>Overschot verv. vervoer</th>
         </tr>`;
@@ -909,7 +909,7 @@
         html += `<div class="table-wrap"><table class="table">`;
         html += `<tr>
           <th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leasemaatschappij factuur</th><th>Factuurnummer</th><th>Factuurdatum</th>
+          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Start factuurperiode</th><th>Eind factuurperiode</th>
           <th>Kostensoort</th><th>Gefactureerd</th>
         </tr>`;
@@ -940,7 +940,7 @@
         "Kenteken": r.plate,
         "Status": r.status,
         "Status sinds": toExcelDate(r.statusSince),
-        "Leasemaatschappij factuur": r.leasCo,
+        "Leverancier": r.leasCo,
         "Factuurnummer": r.invoiceNum,
         "Factuurdatum": toExcelDate(r.invoiceDate),
         "Start factuurperiode": toExcelDate(r.startDate),
@@ -954,7 +954,7 @@
         "Kenteken": r.plate,
         "Status": r.status,
         "Status sinds": toExcelDate(r.statusSince),
-        "Leasemaatschappij factuur": r.leasCo,
+        "Leverancier": r.leasCo,
         "Factuurnummer": r.invoiceNum,
         "Factuurdatum": toExcelDate(r.invoiceDate),
         "Start factuurperiode": toExcelDate(r.startDate),
@@ -970,7 +970,7 @@
         "Kenteken": r.plate,
         "Status": r.status,
         "Status sinds": toExcelDate(r.statusSince),
-        "Leasemaatschappij factuur": r.leasCo,
+        "Leverancier": r.leasCo,
         "Factuurnummer": r.invoiceNum,
         "Factuurdatum": toExcelDate(r.invoiceDate),
         "Start factuurperiode": toExcelDate(r.startDate),
@@ -984,7 +984,7 @@
         "Kenteken": r.plate,
         "Status": r.status,
         "Status sinds": toExcelDate(r.statusSince),
-        "Leasemaatschappij factuur": r.leasCo,
+        "Leverancier": r.leasCo,
         "Factuurnummer": r.invoiceNum,
         "Factuurdatum": toExcelDate(r.invoiceDate),
         "Start factuurperiode": toExcelDate(r.startDate),
