@@ -808,146 +808,74 @@
       }
     }
 
-   function comparePlatesAscending(a, b) {
-2
-return cleanPlate(a.plate).localeCompare(
-3
-cleanPlate(b.plate),
-4
-"nl",
-5
-{
-6
-numeric: true,
-7
-sensitivity: "base"
-8
+function comparePlatesAscending(a, b) {
+  return cleanPlate(a.plate).localeCompare(
+    cleanPlate(b.plate),
+    "nl",
+    {
+      numeric: true,
+      sensitivity: "base"
+    }
+  );
 }
-9
-);
-10
-}
-11
- 
-12
+
 function compareStatusDescending(a, b) {
-13
-return (b.status || "").toString().localeCompare(
-14
-(a.status || "").toString(),
-15
-"nl",
-16
-{
-17
-numeric: true,
-18
-sensitivity: "base"
-19
+  return (b.status || "").toString().localeCompare(
+    (a.status || "").toString(),
+    "nl",
+    {
+      numeric: true,
+      sensitivity: "base"
+    }
+  );
 }
-20
-);
-21
-}
-22
- 
-23
+
 function applyGroupedPlateColors(rows) {
-24
-let previousPlate = null;
-25
-let groupIndex = -1;
-26
- 
-27
-rows.forEach(row => {
-28
-const currentPlate = cleanPlate(row.plate);
-29
- 
-30
-if (currentPlate !== previousPlate) {
-31
-groupIndex += 1;
-32
-previousPlate = currentPlate;
-33
+  let previousPlate = null;
+  let groupIndex = -1;
+
+  rows.forEach(row => {
+    const currentPlate = cleanPlate(row.plate);
+
+    if (currentPlate !== previousPlate) {
+      groupIndex += 1;
+      previousPlate = currentPlate;
+    }
+
+    row._groupShaded = groupIndex % 2 === 1;
+  });
 }
-34
- 
-35
-row._groupShaded = groupIndex % 2 === 1;
-36
-});
-37
-}
-38
- 
-39
+
 function prepareGroupedReport(rows) {
-40
-rows.sort(comparePlatesAscending);
-41
-applyGroupedPlateColors(rows);
-42
+  rows.sort(comparePlatesAscending);
+  applyGroupedPlateColors(rows);
 }
-43
- 
-44
+
 function prepareActiveInactiveReport(rows) {
-45
- 
-46
-// Eerst Kenteken A-Z
-47
-rows.sort((a, b) => {
-48
-const plateCompare = comparePlatesAscending(a, b);
-49
- 
-50
-if (plateCompare !== 0) {
-51
-return plateCompare;
-52
+
+  // Eerst Kenteken A-Z
+  rows.sort((a, b) => {
+
+    const plateCompare = comparePlatesAscending(a, b);
+
+    if (plateCompare !== 0) {
+      return plateCompare;
+    }
+
+    // Daarna Status Z-A
+    return compareStatusDescending(a, b);
+  });
+
+  // Pas daarna de kleuren bepalen
+  applyGroupedPlateColors(rows);
 }
-53
- 
-54
-// Daarna Status Z-A binnen hetzelfde kenteken
-55
-return compareStatusDescending(a, b);
-56
-});
-57
- 
-58
-// Pas NA beide sorteringen de rijkleuren bepalen
-59
-applyGroupedPlateColors(rows);
-60
-}
-61
- 
-62
+
 function prepareAllGroupedReports() {
-63
- 
-64
-// Actief-Inactief krijgt aparte sorteervolgorde
-65
-prepareActiveInactiveReport(reportActiveInactiveData);
-66
- 
-67
-// Overige rapporten blijven alleen Kenteken A-Z
-68
-prepareGroupedReport(reportLeaseData);
-69
-prepareGroupedReport(reportDamageData);
-70
-prepareGroupedReport(reportVariableCostsData);
-71
+  prepareActiveInactiveReport(reportActiveInactiveData);
+
+  prepareGroupedReport(reportLeaseData);
+  prepareGroupedReport(reportDamageData);
+  prepareGroupedReport(reportVariableCostsData);
 }
     function renderHTMLTables() {
       let html = "";
