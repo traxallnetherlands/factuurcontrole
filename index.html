@@ -810,26 +810,65 @@
 
     function prepareGroupedReport(rows) {
       rows.sort((a, b) => {
-        const plateA = (a.plate || "").toString();
-        const plateB = (b.plate || "").toString();
-        return plateA.localeCompare(plateB, "nl", { numeric: true, sensitivity: "base" });
-      });
+function comparePlatesAscending(a, b) {
+      const plateA = cleanPlate(a.plate);
+      const plateB = cleanPlate(b.plate);
 
+      return plateA.localeCompare(plateB, "nl", {
+        numeric: true,
+        sensitivity: "base"
+      });
+    }
+
+    function compareStatusDescending(a, b) {
+      const statusA = (a.status || "").toString().trim();
+      const statusB = (b.status || "").toString().trim();
+
+      return statusB.localeCompare(statusA, "nl", {
+        numeric: true,
+        sensitivity: "base"
+      });
+    }
+
+    function applyGroupedPlateColors(rows) {
       let previousPlate = null;
       let groupIndex = -1;
 
       rows.forEach(row => {
         const currentPlate = cleanPlate(row.plate);
+
         if (currentPlate !== previousPlate) {
           groupIndex += 1;
           previousPlate = currentPlate;
         }
+
         row._groupShaded = groupIndex % 2 === 1;
       });
     }
 
+    function prepareGroupedReport(rows) {
+      rows.sort((a, b) => comparePlatesAscending(a, b));
+      applyGroupedPlateColors(rows);
+    }
+
+    function prepareActiveInactiveReport(rows) {
+      rows.sort((a, b) => {
+        const plateComparison = comparePlatesAscending(a, b);
+
+        if (plateComparison !== 0) {
+          return plateComparison;
+        }
+
+        return compareStatusDescending(a, b);
+      });
+
+      // Kleurtoewijzing bewust pas uitvoeren nadat eerst op
+      // Kenteken A-Z en vervolgens binnen het kenteken op Status Z-A is gesorteerd.
+      applyGroupedPlateColors(rows);
+    }
+
     function prepareAllGroupedReports() {
-      prepareGroupedReport(reportActiveInactiveData);
+      prepareActiveInactiveReport(reportActiveInactiveData);
       prepareGroupedReport(reportLeaseData);
       prepareGroupedReport(reportDamageData);
       prepareGroupedReport(reportVariableCostsData);
