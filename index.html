@@ -235,6 +235,11 @@
       vertical-align: top;
     }
 
+    .align-right {
+      text-align: right !important;
+      white-space: nowrap;
+    }
+
     .bad {
       color: red;
       font-weight: 700;
@@ -808,14 +813,14 @@
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
-            <td>${r.statusSince}</td>
+            <td class="align-right">${r.statusSince}</td>
             <td>${r.leasCo}</td>
             <td>${r.invoiceNum}</td>
-            <td>${r.invoiceDate}</td>
-            <td>${r.startDate}</td>
-            <td>${r.endDate}</td>
+            <td class="align-right">${r.invoiceDate}</td>
+            <td class="align-right">${r.startDate}</td>
+            <td class="align-right">${r.endDate}</td>
             <td>${r.costType}</td>
-            <td>${infShow}</td>
+            <td class="align-right">${infShow}</td>
           </tr>`;
         });
         html += `</table></div>`;
@@ -836,14 +841,14 @@
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
-            <td>${r.statusSince}</td>
+            <td class="align-right">${r.statusSince}</td>
             <td>${r.leasCo}</td>
             <td>${r.invoiceNum}</td>
-            <td>${r.invoiceDate}</td>
-            <td>${r.startDate}</td>
-            <td>${r.endDate}</td>
+            <td class="align-right">${r.invoiceDate}</td>
+            <td class="align-right">${r.startDate}</td>
+            <td class="align-right">${r.endDate}</td>
             <td>${r.lineCount}</td>
-            <td>€ ${format2(r.invoiced)}</td>
+            <td class="align-right">€ ${format2(r.invoiced)}</td>
             <td>€ ${format2(r.traxallCosts)}</td>
             <td class="bad">€ ${format2(r.difference)}</td>
           </tr>`;
@@ -867,15 +872,15 @@
             <td class="bad">${r.deviationType}</td>
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
-            <td>${r.statusSince}</td>
+            <td class="align-right">${r.statusSince}</td>
             <td>${r.leasCo}</td>
             <td>${r.invoiceNum}</td>
-            <td>${r.invoiceDate}</td>
-            <td>${r.startDate}</td>
-            <td>${r.endDate}</td>
+            <td class="align-right">${r.invoiceDate}</td>
+            <td class="align-right">${r.startDate}</td>
+            <td class="align-right">${r.endDate}</td>
             <td>${r.costType}</td>
-            <td>€ ${format2(r.invoiced)}</td>
-            <td class="bad">${surplusShow}</td>
+            <td class="align-right">€ ${format2(r.invoiced)}</td>
+            <td class="bad align-right">${surplusShow}</td>
           </tr>`;
         });
         html += `</table></div>`;
@@ -895,14 +900,14 @@
           html += `<tr>
             <td><strong>${r.plate}</strong></td>
             <td>${r.status}</td>
-            <td>${r.statusSince}</td>
+            <td class="align-right">${r.statusSince}</td>
             <td>${r.leasCo}</td>
             <td>${r.invoiceNum}</td>
-            <td>${r.invoiceDate}</td>
-            <td>${r.startDate}</td>
-            <td>${r.endDate}</td>
+            <td class="align-right">${r.invoiceDate}</td>
+            <td class="align-right">${r.startDate}</td>
+            <td class="align-right">${r.endDate}</td>
             <td>${r.costType}</td>
-            <td>€ ${format2(r.invoiced)}</td>
+            <td class="align-right">€ ${format2(r.invoiced)}</td>
           </tr>`;
         });
         html += `</table></div>`;
