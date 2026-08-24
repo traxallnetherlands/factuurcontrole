@@ -851,7 +851,7 @@
           <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
           <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
           <th>Start factuurperiode</th><th>Eind factuurperiode</th>
-          <th>Aantal regels</th><th>Gefactureerd</th><th>Kosten volgens TraXall</th><th>Verschil</th>
+          <th>Aantal regels</th><th>Gefactureerd</th><th>FullFleet</th><th>Verschil</th>
         </tr>`;
         reportLeaseData.forEach(r => {
           html += `<tr>
@@ -961,7 +961,7 @@
         "Eind factuurperiode": toExcelDate(r.endDate),
         "Aantal regels (leasetarief)": r.lineCount,
         "Gefactureerd": Number(r.invoiced.toFixed(2)),
-        "Kosten volgens TraXall": Number(r.traxallCosts.toFixed(2)),
+        "FullFleet": Number(r.traxallCosts.toFixed(2)),
         "Verschil": Number(r.difference.toFixed(2))
       }));
 
