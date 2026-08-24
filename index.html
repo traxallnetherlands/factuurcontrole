@@ -240,6 +240,10 @@
       white-space: nowrap;
     }
 
+    .table tr:not(:first-child):nth-child(odd) td {
+      background-color: #f8f9fb;
+    }
+
     .bad {
       color: red;
       font-weight: 700;
@@ -866,8 +870,8 @@
             <td class="align-right">${r.endDate}</td>
             <td>${r.lineCount}</td>
             <td class="align-right">€ ${format2(r.invoiced)}</td>
-            <td class="align-right">€ ${format2(r.traxallCosts)}</td>
-            <td class="bad align-right">€ ${format2(r.difference)}</td>
+            <td>€ ${format2(r.traxallCosts)}</td>
+            <td class="bad">€ ${format2(r.difference)}</td>
           </tr>`;
         });
         html += `</table></div>`;
@@ -897,7 +901,7 @@
             <td class="align-right">${r.endDate}</td>
             <td>${r.costType}</td>
             <td class="align-right">€ ${format2(r.invoiced)}</td>
-            <td class="bad align-right">${surplusShow}</td>
+            <td class="bad">${surplusShow}</td>
           </tr>`;
         });
         html += `</table></div>`;
