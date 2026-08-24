@@ -809,12 +809,28 @@
     }
 
     function prepareGroupedReport(rows) {
+      // Eerst Kenteken van A naar Z, daarna binnen hetzelfde kenteken
+      // Soort afwijking van Z naar A.
       rows.sort((a, b) => {
-        const plateA = (a.plate || "").toString();
-        const plateB = (b.plate || "").toString();
-        return plateA.localeCompare(plateB, "nl", { numeric: true, sensitivity: "base" });
+        const plateA = cleanPlate(a.plate);
+        const plateB = cleanPlate(b.plate);
+        const plateCompare = plateA.localeCompare(plateB, "nl", {
+          numeric: true,
+          sensitivity: "base"
+        });
+
+        if (plateCompare !== 0) return plateCompare;
+
+        const deviationA = (a.deviationType || "").toString().trim();
+        const deviationB = (b.deviationType || "").toString().trim();
+        return deviationB.localeCompare(deviationA, "nl", {
+          numeric: true,
+          sensitivity: "base"
+        });
       });
 
+      // Pas na de volledige sortering de afwisselende grijze kleur
+      // per uniek kenteken bepalen.
       let previousPlate = null;
       let groupIndex = -1;
 
