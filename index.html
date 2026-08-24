@@ -808,75 +808,33 @@
       }
     }
 
-function comparePlatesAscending(a, b) {
-  return cleanPlate(a.plate).localeCompare(
-    cleanPlate(b.plate),
-    "nl",
-    {
-      numeric: true,
-      sensitivity: "base"
-    }
-  );
-}
+    function prepareGroupedReport(rows) {
+      rows.sort((a, b) => {
+        const plateA = (a.plate || "").toString();
+        const plateB = (b.plate || "").toString();
+        return plateA.localeCompare(plateB, "nl", { numeric: true, sensitivity: "base" });
+      });
 
-function compareStatusDescending(a, b) {
-  return (b.status || "").toString().localeCompare(
-    (a.status || "").toString(),
-    "nl",
-    {
-      numeric: true,
-      sensitivity: "base"
-    }
-  );
-}
+      let previousPlate = null;
+      let groupIndex = -1;
 
-function applyGroupedPlateColors(rows) {
-  let previousPlate = null;
-  let groupIndex = -1;
-
-  rows.forEach(row => {
-    const currentPlate = cleanPlate(row.plate);
-
-    if (currentPlate !== previousPlate) {
-      groupIndex += 1;
-      previousPlate = currentPlate;
+      rows.forEach(row => {
+        const currentPlate = cleanPlate(row.plate);
+        if (currentPlate !== previousPlate) {
+          groupIndex += 1;
+          previousPlate = currentPlate;
+        }
+        row._groupShaded = groupIndex % 2 === 1;
+      });
     }
 
-    row._groupShaded = groupIndex % 2 === 1;
-  });
-}
-
-function prepareGroupedReport(rows) {
-  rows.sort(comparePlatesAscending);
-  applyGroupedPlateColors(rows);
-}
-
-function prepareActiveInactiveReport(rows) {
-
-  // Eerst Kenteken A-Z
-  rows.sort((a, b) => {
-
-    const plateCompare = comparePlatesAscending(a, b);
-
-    if (plateCompare !== 0) {
-      return plateCompare;
+    function prepareAllGroupedReports() {
+      prepareGroupedReport(reportActiveInactiveData);
+      prepareGroupedReport(reportLeaseData);
+      prepareGroupedReport(reportDamageData);
+      prepareGroupedReport(reportVariableCostsData);
     }
 
-    // Daarna Status Z-A
-    return compareStatusDescending(a, b);
-  });
-
-  // Pas daarna de kleuren bepalen
-  applyGroupedPlateColors(rows);
-}
-
-function prepareAllGroupedReports() {
-  prepareActiveInactiveReport(reportActiveInactiveData);
-
-  prepareGroupedReport(reportLeaseData);
-  prepareGroupedReport(reportDamageData);
-  prepareGroupedReport(reportVariableCostsData);
-}
     function renderHTMLTables() {
       let html = "";
 
