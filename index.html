@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TraXall Factuurcontrole</title>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
   <style>
     body, html {
       min-height: 100%;
@@ -1034,6 +1034,22 @@
 
       if (rowCount > 0) {
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+          // Tweede, vierde, zesde enz. gegevensrij lichtgrijs maken.
+          // R is nulgebaseerd en rij 0 is de kolomkop.
+          if (R % 2 === 0) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+              const stripedCellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+              const stripedCell = ws[stripedCellAddress];
+              if (!stripedCell) continue;
+              if (!stripedCell.s) stripedCell.s = {};
+              stripedCell.s.fill = {
+                patternType: "solid",
+                fgColor: { rgb: "F8F9FB" },
+                bgColor: { rgb: "F8F9FB" }
+              };
+            }
+          }
+
           numCols.forEach(colLetter => {
             const cell = ws[colLetter + (R + 1)];
             if (cell && typeof cell.v === "number") cell.z = "0.00";
