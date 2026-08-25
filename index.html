@@ -1055,32 +1055,7 @@
       }
 
       if (rowCount > 0) {
-        let previousPlate = null;
-        let groupIndex = -1;
-
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-          const plateCell = ws[plateCol + (R + 1)];
-          const currentPlate = cleanPlate(plateCell ? plateCell.v : "");
-
-          if (currentPlate !== previousPlate) {
-            groupIndex += 1;
-            previousPlate = currentPlate;
-          }
-
-          if (groupIndex % 2 === 1) {
-            for (let C = range.s.c; C <= range.e.c; ++C) {
-              const groupedCellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-              const groupedCell = ws[groupedCellAddress];
-              if (!groupedCell) continue;
-              if (!groupedCell.s) groupedCell.s = {};
-              groupedCell.s.fill = {
-                patternType: "solid",
-                fgColor: { rgb: "E3E6E9" },
-                bgColor: { rgb: "E3E6E9" }
-              };
-            }
-          }
-
           numCols.forEach(colLetter => {
             const cell = ws[colLetter + (R + 1)];
             if (cell && typeof cell.v === "number") cell.z = "0.00";
