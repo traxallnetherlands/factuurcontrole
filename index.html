@@ -28,6 +28,32 @@
       max-width: 1400px;
       width: 100%;
     }
+    .header-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 92px;
+      padding: 18px 28px;
+      background-color: white;
+      border-radius: 10px;
+      box-sizing: border-box;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.18);
+    }
+    .header-bar img {
+      position: absolute;
+      left: 28px;
+      max-width: 180px;
+      max-height: 58px;
+      width: auto;
+      height: auto;
+    }
+    .header-bar h1 {
+      margin: 0;
+      color: #213153;
+      font-size: 28px;
+      text-align: center;
+    }
 
     .top-row {
       display: flex;
@@ -262,21 +288,31 @@
       .top-row {
         flex-direction: column;
       }
+      .header-bar {
+        justify-content: flex-end;
+      }
+      .header-bar img {
+        left: 20px;
+        max-width: 140px;
+      }
+      .header-bar h1 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrapper">
-    
-    <div class="top-row">
-      
-      <div class="container">
-        <div class="image-container">
-          <img src="logo-traxall.png" alt="TraXall logo" />
-        </div>
-        <h1>TraXall Factuurcontrole</h1>
+    <div class="header-bar">
+      <img src="logo-traxall.png" alt="TraXall logo" />
+      <h1>Factuurcontrole</h1>
+    </div>
 
-        <div class="dropbox">
+    <div class="top-row">
+      <div class="container">
+        <h2>Upload bestanden</h2>
+
+<div class="dropbox">
           <strong>Kostenexport TraX-it</strong>
           <div class="hint">Upload .xlsx</div>
           <input type="file" id="accFile" accept=".xlsx,.xls" />
