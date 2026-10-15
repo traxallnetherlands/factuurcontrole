@@ -304,7 +304,20 @@
 @media(max-width:650px){.tools-back-link{justify-self:center;white-space:normal;text-align:center}}
 
 .header-bar .tools-back-link{position:absolute;right:28px}
-</style>
+
+:root{--blue:#213153;--orange:#f59e0b;--green:#16875d;--soft:#f8faff;--line:#cfd6e4;--shadow:2px 2px 10px #0003}*{box-sizing:border-box}.workspace{display:grid;grid-template-columns:29% 40% 29%;grid-template-rows:270px 150px;gap:16px}.panel-card{background:#fff;border-radius:10px;box-shadow:var(--shadow);overflow:hidden;min-width:0}.panel-title{padding:13px 17px;border-bottom:1px solid var(--line);color:var(--blue);font-size:16px;font-weight:700}.panel-body{padding:12px 16px}.files-card{grid-column:1;grid-row:1}.period-card{grid-column:1;grid-row:2}.settings-card{grid-column:2;grid-row:1/3}.process-card{grid-column:3;grid-row:1}.manual-card{grid-column:3;grid-row:2}.uploads{display:grid;gap:11px}.upload{position:relative;min-height:91px;padding:10px;text-align:center;background:var(--soft);border:2px dashed var(--line);border-radius:10px}.upload:hover,.upload.drag-over{border-color:var(--orange);background:#fff8e8}.upload.ready{border-color:#70ad47;background:#edf8e9}.upload b{display:block;color:var(--blue);font-size:15px;margin-bottom:7px}.upload input[type=file]{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0)}.fileButton{display:inline-flex;align-items:center;justify-content:center;min-width:220px;min-height:40px;padding:8px 14px;color:var(--blue);font-weight:700;background:#fff;border:1px solid var(--line);border-radius:7px;cursor:pointer}.period-controls{display:flex;justify-content:center;align-items:center;gap:18px;height:91px}.date-field{display:grid;gap:7px;text-align:center}.date-field label,.languageField>label{color:var(--blue);font-weight:700}input[type=date]{width:145px;height:46px;padding:0 10px;border:1px solid var(--line);border-radius:7px;font-size:15px;font-weight:400}.setting-list{display:grid;gap:5px}.setting-box,.damage-box{background:var(--soft);border:1px solid var(--line);border-radius:8px}.setting-box{display:grid;grid-template-columns:minmax(240px,1fr) 72px 65px;align-items:center;gap:7px;padding:5px 9px;min-height:41px}.setting-box label{color:var(--blue);font-weight:700;font-size:12px}.setting-box input[type=number]{width:100%;height:29px;text-align:center;border:1px solid var(--line);border-radius:6px}.unit{color:var(--blue);font-weight:700;font-size:11px}.damage-tools{display:grid;grid-template-columns:1fr 148px;gap:8px;align-items:stretch}.damage-row{display:grid;grid-template-columns:145px 1fr;gap:8px}.damage-title{padding-top:9px;color:var(--blue);font-weight:700}.damage-box{padding:7px 9px}.checkbox-grid{border:0;padding:0;background:transparent;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.plate-box{background:#fff8e8;border:1px solid var(--orange);border-radius:8px;padding:9px;text-align:center;color:var(--blue);font-weight:700}.plate-box label{display:grid;justify-items:center;gap:8px}.process-body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:216px}.languageField{display:grid;gap:7px;text-align:center}.languageButtons{display:flex;justify-content:center;gap:7px}.flagButton{width:48px;height:46px;padding:3px;border:2px solid transparent;background:#e9edf4}.flagButton img{width:100%;height:100%;object-fit:cover;border-radius:50%}.flagButton.selected{border-color:var(--orange);background:#fff8e8}.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:300px}.primary,.secondary,.export{height:44px;border-radius:8px}.primary{background:var(--blue);color:#fff}.secondary{background:#e9edf4;color:var(--blue)}.export,.manual-link{display:inline-flex;align-items:center;justify-content:center;width:300px;height:52px;border-radius:8px;font-weight:700}.export{gap:9px;background:var(--green);color:#fff}.manual-body{height:150px;display:flex;align-items:center;justify-content:center}.manual-link{color:#111;background:var(--orange);text-decoration:none;font-size:16px}.category-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}.category-tab{background:#e9edf4;color:var(--blue);min-height:44px}.category-tab.active{background:var(--blue);color:#fff;box-shadow:inset 0 -3px 0 var(--orange)}@media(max-width:1100px){.workspace{grid-template-columns:1fr 1fr;grid-template-rows:auto}.files-card,.period-card,.settings-card,.process-card,.manual-card{grid-column:auto;grid-row:auto}.settings-card{grid-column:1/3}}
+
+/* Uitlijning schade-instellingen en kentekenoptie */
+.damage-tools{display:grid;grid-template-columns:minmax(0,1fr) 138px;gap:8px;align-items:end;margin-top:1px}
+.damage-row{display:flex;flex-direction:column;gap:4px;min-width:0}
+.damage-title{padding:0;color:var(--blue);font-weight:700;line-height:20px}
+.damage-box,.plate-box{height:102px;min-height:102px;margin:0}
+.damage-box{width:100%;padding:8px 12px;display:flex;align-items:center}
+.damage-box .checkbox-grid{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px;row-gap:5px}
+.plate-box{padding:8px;display:flex;align-items:center;justify-content:center}
+.plate-box label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;width:100%;height:100%;margin:0;text-align:center;line-height:1.2}
+.plate-box input[type="checkbox"]{width:15px;height:15px;margin:0;flex:0 0 15px}
+.export::before{width:20px;height:20px;content:"";background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='3' fill='%23217346'/%3E%3Cpath fill='white' d='M5 5h7v14H5zm8 2h6v2h-6zm0 4h6v2h-6zm0 4h6v2h-6zM7 8l1.4 2.5L9.8 8h1.7l-2.2 4 2.3 4H9.9l-1.5-2.6L6.9 16H5.2l2.3-4-2.2-4z'/%3E%3C/svg%3E") center/contain no-repeat;}</style>
 </head>
 <body>
   <div class="wrapper">
@@ -314,105 +327,10 @@
       <a class="tools-back-link" href="https://traxallnetherlands.github.io/traxalltools/">&lt; Terug naar TraXall Tools</a>
     </div>
 
-    <div class="top-row">
-      <div class="container">
-        <h2>Upload bestanden</h2>
-
-<div class="dropbox">
-          <strong>Kostenexport TraX-it</strong>
-          <div class="hint">Upload .xlsx</div>
-          <input type="file" id="accFile" accept=".xlsx,.xls" />
-        </div>
-
-        <div class="dropbox">
-          <strong>Full Fleetoverview</strong>
-          <div class="hint">Upload .xlsx</div>
-          <input type="file" id="fleetFile" accept=".xlsx,.xls" />
-        </div>
-
-        <div class="row">
-          <button id="matchBtn" type="button">Match</button>
-          <button id="downloadBtn" type="button" disabled>Download XLSX</button>
-        </div>
-        <div id="message" class="msg"></div>
-      </div>
-
-      <div class="container">
-        <h2>Instellingen Filters</h2>
-        <p>Stel hier de marges en uitsluitingen in voor de analyse.</p>
-        
-        <div class="form-group">
-          <div class="form-row">
-            <label for="ignoreLeaseDiff">Verschil in leasetarief negeren:</label>
-            <input type="number" id="ignoreLeaseDiff" value="0.05" step="0.01" min="0" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-row">
-            <label for="ownRiskAmount">Eigen risico bedrag klant:</label>
-            <input type="number" id="ownRiskAmount" value="0" step="5" min="0" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-row">
-            <label for="ignoreContractAdj">Contractaanpassingen binnen bedrag negeren:</label>
-            <input type="number" id="ignoreContractAdj" value="0" step="1" min="0" />
-          </div>
-        </div>
-
-        <br>
-
-        <div class="form-group">
-          <label style="font-size: 14px; font-weight: bold; color: #213153;">Schades negeren:</label>
-          <div class="checkbox-grid">
-            <label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Bandenschade"> Bandenschade</label>
-            <label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Diefstal"> Diefstal</label>
-            <label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Eigen risico"> Eigen risico</label>
-            <label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Onderhoud doorbelast"> Onderhoud doorbelast</label>
-            <label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Overige schadekosten"> Overige schadekosten</label>
-            <label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Ruitschade"> Ruitschade</label>
-            <label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Schade"> Schade</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="container info-box">
-        <h2>Criteria en Uitleg</h2>
-        <p>Correct gefactureerde kentekens worden automatisch weggelaten.</p>
-        
-        <p><strong>De Excel-export bevat 4 verschillende werkbladen</strong></p>
-        
-        <ul style="list-style-type: disc; padding-left: 20px;">
-          <li style="margin-bottom: 15px;">
-            <strong>Actief-Inactief:</strong><br>
-            Bevat alle actieve auto's zonder factuur of inactieve auto's met factuur.
-          </li>
-          
-          <li style="margin-bottom: 15px;">
-            <strong>Leasetarief:</strong><br>
-            Bevat alle auto's met verschillen tussen de gefactureeerde leasekosten en het leasetarief uit Traxit. In de facturen kan dit bedrag bestaan uit een combinatie van meerdere factuurregels, zie kolom H in de Excel-export.
-          </li>
-          
-          <li style="margin-bottom: 15px;">
-            <strong>Schades-Vervangend vervoer:</strong><br>
-            Bevat schades die het ingevulde eigen risico van de klant overschrijden en vervangend vervoer bedragen die 13% van het leasetarief overschrijden. Credits worden genegeerd.
-          </li>
-          
-          <li style="margin-bottom: 15px;">
-            <strong>Diverse kosten:</strong><br>
-            Bevat alle gefactureerde boetes, contractaanpassingen, meerkilometers, poolkosten en variabele kosten.
-          </li>
-        </ul>
-      </div>
-
-    </div>
-
+    <div class="workspace"><section class="panel-card files-card"><div class="panel-title">1. Bestanden</div><div class="panel-body uploads"><div class="upload" id="boxAcc"><b>Kostenexport</b><input type="file" id="accFile" accept=".xlsx,.xls"><label class="fileButton" for="accFile">Selecteer of sleep bestand</label></div><div class="upload" id="boxFleet"><b>Full Fleetoverview</b><input type="file" id="fleetFile" accept=".xlsx,.xls"><label class="fileButton" for="fleetFile">Selecteer of sleep bestand</label></div></div></section><section class="panel-card period-card"><div class="panel-title">2. Periode</div><div class="panel-body period-controls"><div class="date-field"><label>Vanaf</label><input id="fromDate" type="date"></div><div class="date-field"><label>Tot en met</label><input id="toDate" type="date"></div></div></section><section class="panel-card settings-card"><div class="panel-title">3. Instellingen</div><div class="panel-body setting-list"><div class="setting-box"><label>Inactieve auto's: status sinds negeren binnen:</label><input type="number" id="ignoreInactiveMonths" value="1" step="0.5" min="0"><span class="unit">maand(en)</span></div><div class="setting-box"><label>Actieve auto's: status sinds negeren binnen:</label><input type="number" id="ignoreActiveMonths" value="0.5" step="0.5" min="0"><span class="unit">maand(en)</span></div><div class="setting-box"><label>Leasetarief verschil negeren binnen:</label><input type="number" id="ignoreLeaseDiff" value="0.05" step="0.01" min="0"><span class="unit">Euro</span></div><div class="setting-box"><label>Eigen risico klant:</label><input type="number" id="ownRiskAmount" value="0" step="5" min="0"><span class="unit">Euro</span></div><div class="setting-box"><label>Contractaanpassingen negeren binnen:</label><input type="number" id="ignoreContractAdj" value="0" step="1" min="0"><span class="unit">Euro</span></div><div class="damage-tools"><div class="damage-row"><div class="damage-title">Schades negeren:</div><div class="damage-box"><div class="checkbox-grid"><label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Bandenschade"> Bandenschade</label><label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Diefstal"> Diefstal</label><label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Eigen risico"> Eigen risico</label><label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Onderhoud doorbelast"> Onderhoud doorbelast</label><label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Overige schadekosten"> Overige schadekosten</label><label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Ruitschade"> Ruitschade</label><label class="checkbox-label"><input type="checkbox" class="damage-ignore" value="Schade"> Schade</label></div></div></div><div class="plate-box"><label>Kenteken strepen<input type="checkbox" id="plateHyphens"></label></div></div></div></section><section class="panel-card process-card"><div class="panel-title">4. Verwerken</div><div class="panel-body process-body"><div class="languageField"><label>Taal controle</label><div class="languageButtons"><button class="flagButton selected" id="langNl" data-lang="nl"><img src="vlag-nl.png"></button><button class="flagButton" id="langEn" data-lang="en"><img src="vlag-eng.png"></button></div></div><div class="action-row"><button id="matchBtn" class="primary" disabled>Verwerken</button><button id="clearBtn" class="secondary">Wissen</button></div><button id="downloadBtn" class="export" disabled><span>Exporteren naar Excel</span></button><div id="message" class="msg"></div></div></section><section class="panel-card manual-card"><div class="panel-body manual-body"><a class="manual-link" href="https://traxallnetherlands.github.io/factuurcontrole-handleiding/" target="_blank" rel="noopener noreferrer">Handleiding</a></div></section></div>
     <div class="bottom-container">
-      <h1>Resultaten Afwijkingen</h1>
-      <div id="result">
-        <p style="color: #666; font-style: italic; margin-top: 15px;">Er zijn nog geen bestanden verwerkt. Upload de data en klik op Match.</p>
+      <h1 id="resultsHeading">5. Resultaten</h1><div class="category-tabs"><button class="category-tab active" data-category="active">Actief/Inactief gefactureerd</button><button class="category-tab" data-category="lease">Afwijkingen leasetarief</button><button class="category-tab" data-category="damage">Schades en vervangend vervoer</button><button class="category-tab" data-category="variable">Diverse kosten</button></div><div id="result">
+        <p style="color: #666; font-style: italic; margin-top: 15px;">Er zijn nog geen bestanden verwerkt. Upload de data en klik op Verwerken.</p>
       </div>
     </div>
 
@@ -422,7 +340,7 @@
     const FLEET_PLATE_COL = "License Plate";
     const FLEET_CONTRACT_COL = "Monthly Contractual VATex";
     const FLEET_STATUS_COL = "Status";
-    const FLEET_LEASCO_COL = "Lease Company"; 
+    const FLEET_LEASCO_COL="Lease Company";const FLEET_SUPPLIER_COL="Fournisseur"; 
     const FLEET_STATUS_DATE_COL = "Status since"; 
 
     const STATUS_ACTIVE = "actief";
@@ -432,7 +350,7 @@
     let reportActiveInactiveData = [];
     let reportLeaseData = [];
     let reportDamageData = [];
-    let reportVariableCostsData = [];
+    let reportVariableCostsData=[];let activeCategory="active",reportLanguage="nl";
 
     document.getElementById("matchBtn").addEventListener("click", runCheck);
     document.getElementById("downloadBtn").addEventListener("click", downloadXlsx);
@@ -586,7 +504,7 @@
         return;
       }
 
-      const leaseAmtThreshold = Math.abs(parseFloat(document.getElementById("ignoreLeaseDiff").value)) || 0;
+      const leaseAmtThreshold=Math.abs(parseFloat(document.getElementById("ignoreLeaseDiff").value))||0;const inactiveMonthsThreshold=Math.max(0,parseFloat(document.getElementById("ignoreInactiveMonths").value)||0);const activeMonthsThreshold=Math.max(0,parseFloat(document.getElementById("ignoreActiveMonths").value)||0);const fromDateFilter=parseInputDate(document.getElementById("fromDate").value),toDateFilter=parseInputDate(document.getElementById("toDate").value,true);
       const ownRiskThreshold = parseFloat(document.getElementById("ownRiskAmount").value) || 0;
       const ignoreContractAdjThreshold = Math.abs(parseFloat(document.getElementById("ignoreContractAdj").value)) || 0;
       const ignoredDamages = Array.from(document.querySelectorAll('.damage-ignore:checked')).map(cb => cb.value.toLowerCase());
@@ -608,14 +526,14 @@
           const statusRaw = f[FLEET_STATUS_COL] || "";
           const statusNorm = normalizeFleetStatus(statusRaw);
           const statusSince = formatDate(f[FLEET_STATUS_DATE_COL]);
-          const leasCo = f[FLEET_LEASCO_COL] || "";
+          const leasCo=f[FLEET_LEASCO_COL]||"";const fleetSupplier=f[FLEET_SUPPLIER_COL]||f["Supplier"]||f["Leasing Company"]||leasCo||"";
 
           fleetMap[plate] = {
             contractNum,
             statusRaw,
             statusNorm,
             statusSince,
-            leasCo,
+            leasCo,fleetSupplier,
             hasInvoiceRecords: false
           };
 
@@ -647,7 +565,7 @@
           const htAmount = toNumber(r["HT"]);
           const invoiceNum = (r["Numero_facture"] || "").toString().trim();
           
-          const invoiceDate = formatDate(r["Date"] || r["Date_facture"]);
+          const invoiceDate = formatDate(r["Date"] || r["Date_facture"]);const invoiceDateObject=parseDisplayDate(invoiceDate);if((fromDateFilter&&(!invoiceDateObject||invoiceDateObject<fromDateFilter))||(toDateFilter&&(!invoiceDateObject||invoiceDateObject>toDateFilter)))return;
           // Fallback voor hoofdlettergevoelige/afwijkende kolomnamen (Date_debut / date_debut / Date_debuts etc.)
           const rawDebut = r["Date_debut"] !== undefined ? r["Date_debut"] : (r["date_debut"] !== undefined ? r["date_debut"] : "");
           const rawFin = r["Date_fin"] !== undefined ? r["Date_fin"] : (r["date_fin"] !== undefined ? r["date_fin"] : "");
@@ -665,13 +583,13 @@
           }
 
           // AFWIJKING: Inactieve auto gefactureerd
-          if (isInactive && Math.abs(htAmount) > 0.001) {
+          if(isInactive&&Math.abs(htAmount)>0.001){const statusDate=f?parseDisplayDate(f.statusSince):null;if(statusDate&&invoiceDateObject&&Math.abs(invoiceDateObject-statusDate)/86400000<=inactiveMonthsThreshold*30)return;
             reportActiveInactiveData.push({
               deviationType: "Inactief - gefactureerd",
               plate: plate,
               status: f ? f.statusRaw : "Inactief",
               statusSince: f ? f.statusSince : "",
-              leasCo: leasCoInvoice || (f ? f.leasCo : ""),
+              leasCo:leasCoInvoice||(f?f.leasCo:""),fleetSupplier:f?f.fleetSupplier:"",
               invoiceNum: invoiceNum,
               invoiceDate: invoiceDate,
               startDate: startDate,
@@ -684,7 +602,7 @@
 
           if (!isInactive) {
             const costTypeLower = costType.toLowerCase();
-            const productLower = product.toLowerCase();
+            const productLower=product.toLowerCase();const isVV=productLower.includes("vervangend vervoer")||costTypeLower.includes("vervangend vervoer");
 
             // Check voor 'Diverse kosten' (Boetes, Variabele kosten, Poolkosten, Contractaanpassingen, Meerkilometers)
             const isVariableOrFine = costType === "Variabele kosten" || costType === "Boetes";
@@ -692,7 +610,7 @@
             const isContractAdj = productLower === "contract aanpassing";
             const isExtraKm = productLower === "meerkilometers";
 
-            if ((isVariableOrFine || isPool || isContractAdj || isExtraKm) && Math.abs(htAmount) > 0.001) {
+            if(!isVV&&(isVariableOrFine||isPool||isContractAdj||isExtraKm)&&Math.abs(htAmount)>0.001){
               
               // Als het een Contract aanpassing is, controleer de marge
               if (isContractAdj && Math.abs(htAmount) <= ignoreContractAdjThreshold) {
@@ -703,7 +621,7 @@
                 plate: plate,
                 status: f ? f.statusRaw : "Actief",
                 statusSince: f ? f.statusSince : "",
-                leasCo: leasCoInvoice || (f ? f.leasCo : ""),
+                leasCo:leasCoInvoice||(f?f.leasCo:""),fleetSupplier:f?f.fleetSupplier:"",
                 invoiceNum: invoiceNum,
                 invoiceDate: invoiceDate,
                 startDate: startDate,
@@ -754,21 +672,20 @@
                   plate: plate,
                   status: f ? f.statusRaw : "Actief",
                   statusSince: f ? f.statusSince : "",
-                  leasCo: leasCoInvoice || (f ? f.leasCo : ""),
+                  leasCo:leasCoInvoice||(f?f.leasCo:""),fleetSupplier:f?f.fleetSupplier:"",
                   invoiceNum: invoiceNum,
                   invoiceDate: invoiceDate,
                   startDate: startDate,
                   endDate: endDate,
                   costType: product,
                   invoiced: htAmount,
-                  replacementSurplus: ""
+                  replacementSurplus:htAmount-ownRiskThreshold
                 });
               }
             }
 
             // Vervangend vervoer hoog bedrag
-            const isVV = productLower.includes("vervangend vervoer") || costTypeLower.includes("vervangend vervoer");
-            if (isVV) {
+            if(isVV){
               if (htAmount < 0) return; 
 
               const leaseTariffFleet = f ? f.contractNum : 0;
@@ -777,11 +694,11 @@
               if (htAmount > maxAllowedVV) {
                 const surplus = htAmount - maxAllowedVV;
                 reportDamageData.push({
-                  deviationType: "Vervangend vervoer hoog bedrag",
+                  deviationType:"Overschot vervangend vervoer 13% van leaseprijs",
                   plate: plate,
                   status: f ? f.statusRaw : "Actief",
                   statusSince: f ? f.statusSince : "",
-                  leasCo: leasCoInvoice || (f ? f.leasCo : ""),
+                  leasCo:leasCoInvoice||(f?f.leasCo:""),fleetSupplier:f?f.fleetSupplier:"",
                   invoiceNum: invoiceNum,
                   invoiceDate: invoiceDate,
                   startDate: startDate,
@@ -809,7 +726,7 @@
               plate: plate,
               status: f ? f.statusRaw : "Niet in fleet",
               statusSince: f ? f.statusSince : "",
-              leasCo: a.leasCo || (f ? f.leasCo : ""),
+              leasCo:a.leasCo||(f?f.leasCo:""),fleetSupplier:f?f.fleetSupplier:"",
               invoiceNum: Array.from(a.invoiceNums).join(", "),
               invoiceDate: Array.from(a.invoiceDates).join(", "),
               startDate: a.earliestStartDate,
@@ -823,15 +740,13 @@
         });
 
         // AFWIJKING: Actief kenteken niet gefactureerd
-        unvisitedActivePlates.forEach(plate => {
-          const f = fleetMap[plate];
+        unvisitedActivePlates.forEach(plate => { const f=fleetMap[plate]; if(!f||f.statusNorm===STATUS_RETURNING)return; const sd=parseDisplayDate(f.statusSince); const ref=toDateFilter||new Date(); if(sd&&Math.abs(ref-sd)/86400000<=activeMonthsThreshold*30)return;
           reportActiveInactiveData.push({
             deviationType: "Actief - Niet gefactureerd",
             plate: plate,
             status: f ? f.statusRaw : "Actief",
             statusSince: f ? f.statusSince : "", 
-            leasCo: "",
-            invoiceNum: "",
+            leasCo:"",fleetSupplier:f?f.fleetSupplier:"",invoiceNum: "",
             invoiceDate: "",
             startDate: "",
             endDate: "",
@@ -872,247 +787,11 @@
       prepareGroupedReport(reportVariableCostsData);
     }
 
-    function renderHTMLTables() {
-      let html = "";
-
-      if (reportActiveInactiveData.length === 0 && reportLeaseData.length === 0 && reportDamageData.length === 0 && reportVariableCostsData.length === 0) {
-        document.getElementById("result").innerHTML = "<p style='color: green; font-weight: bold; margin-top:15px;'>Mooi! Er zijn geen afwijkingen gevonden op basis van de ingestelde filters.</p>";
-        document.getElementById("downloadBtn").disabled = true;
-        return;
-      }
-
-      document.getElementById("downloadBtn").disabled = false;
-
-      // 1. Tabel Actief-Inactief
-      if (reportActiveInactiveData.length > 0) {
-        html += `<div class="table-section-title">Actief-Inactief (${reportActiveInactiveData.length} afwijkingen)</div>`;
-        html += `<div class="table-wrap"><table class="table">`;
-        html += `<tr>
-          <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
-          <th>Start factuurperiode</th><th>Eind factuurperiode</th><th>Kostensoort</th><th>Gefactureerd</th>
-        </tr>`;
-        reportActiveInactiveData.forEach(r => {
-          const infShow = r.invoiced === "" ? "" : "€ " + format2(r.invoiced);
-          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
-            <td class="bad">${r.deviationType}</td>
-            <td><strong>${r.plate}</strong></td>
-            <td>${r.status}</td>
-            <td class="align-right">${r.statusSince}</td>
-            <td>${r.leasCo}</td>
-            <td>${r.invoiceNum}</td>
-            <td class="align-right">${r.invoiceDate}</td>
-            <td class="align-right">${r.startDate}</td>
-            <td class="align-right">${r.endDate}</td>
-            <td>${r.costType}</td>
-            <td class="align-right">${infShow}</td>
-          </tr>`;
-        });
-        html += `</table></div>`;
-      }
-
-      // 2. Tabel Leasetarief
-      if (reportLeaseData.length > 0) {
-        html += `<div class="table-section-title">Leasetarief (${reportLeaseData.length} afwijkingen)</div>`;
-        html += `<div class="table-wrap"><table class="table">`;
-        html += `<tr>
-          <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
-          <th>Start factuurperiode</th><th>Eind factuurperiode</th>
-          <th>Aantal regels</th><th>Gefactureerd</th><th>FullFleet</th><th>Verschil</th>
-        </tr>`;
-        reportLeaseData.forEach(r => {
-          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
-            <td class="bad">${r.deviationType}</td>
-            <td><strong>${r.plate}</strong></td>
-            <td>${r.status}</td>
-            <td class="align-right">${r.statusSince}</td>
-            <td>${r.leasCo}</td>
-            <td>${r.invoiceNum}</td>
-            <td class="align-right">${r.invoiceDate}</td>
-            <td class="align-right">${r.startDate}</td>
-            <td class="align-right">${r.endDate}</td>
-            <td>${r.lineCount}</td>
-            <td class="align-right">€ ${format2(r.invoiced)}</td>
-            <td>€ ${format2(r.traxallCosts)}</td>
-            <td class="bad">€ ${format2(r.difference)}</td>
-          </tr>`;
-        });
-        html += `</table></div>`;
-      }
-
-      // 3. Tabel Schades-Vervangend vervoer
-      if (reportDamageData.length > 0) {
-        html += `<div class="table-section-title">Schades-Vervangend vervoer (${reportDamageData.length} afwijkingen)</div>`;
-        html += `<div class="table-wrap"><table class="table">`;
-        html += `<tr>
-          <th>Soort afwijking</th><th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
-          <th>Start factuurperiode</th><th>Eind factuurperiode</th>
-          <th>Kostensoort</th><th>Gefactureerd</th><th>Overschot verv. vervoer</th>
-        </tr>`;
-        reportDamageData.forEach(r => {
-          const surplusShow = r.replacementSurplus === "" ? "" : "€ " + format2(r.replacementSurplus);
-          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
-            <td class="bad">${r.deviationType}</td>
-            <td><strong>${r.plate}</strong></td>
-            <td>${r.status}</td>
-            <td class="align-right">${r.statusSince}</td>
-            <td>${r.leasCo}</td>
-            <td>${r.invoiceNum}</td>
-            <td class="align-right">${r.invoiceDate}</td>
-            <td class="align-right">${r.startDate}</td>
-            <td class="align-right">${r.endDate}</td>
-            <td>${r.costType}</td>
-            <td class="align-right">€ ${format2(r.invoiced)}</td>
-            <td class="bad">${surplusShow}</td>
-          </tr>`;
-        });
-        html += `</table></div>`;
-      }
-
-      // 4. Tabel Diverse kosten
-      if (reportVariableCostsData.length > 0) {
-        html += `<div class="table-section-title">Diverse kosten (${reportVariableCostsData.length} regels)</div>`;
-        html += `<div class="table-wrap"><table class="table">`;
-        html += `<tr>
-          <th>Kenteken</th><th>Status</th><th>Status sinds</th>
-          <th>Leverancier</th><th>Factuurnummer</th><th>Factuurdatum</th>
-          <th>Start factuurperiode</th><th>Eind factuurperiode</th>
-          <th>Kostensoort</th><th>Gefactureerd</th>
-        </tr>`;
-        reportVariableCostsData.forEach(r => {
-          html += `<tr class="${r._groupShaded ? "group-shaded" : ""}">
-            <td><strong>${r.plate}</strong></td>
-            <td>${r.status}</td>
-            <td class="align-right">${r.statusSince}</td>
-            <td>${r.leasCo}</td>
-            <td>${r.invoiceNum}</td>
-            <td class="align-right">${r.invoiceDate}</td>
-            <td class="align-right">${r.startDate}</td>
-            <td class="align-right">${r.endDate}</td>
-            <td>${r.costType}</td>
-            <td class="align-right">€ ${format2(r.invoiced)}</td>
-          </tr>`;
-        });
-        html += `</table></div>`;
-      }
-
-      document.getElementById("result").innerHTML = html;
-      document.getElementById("message").textContent = "Analyse voltooid, het bestand is klaar voor export";
-    }
-
-    function downloadXlsx() {
-      const sheet1Rows = reportActiveInactiveData.map(r => ({
-        "Soort afwijking": r.deviationType,
-        "Kenteken": r.plate,
-        "Status": r.status,
-        "Status sinds": toExcelDate(r.statusSince),
-        "Leverancier": r.leasCo,
-        "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": toExcelDate(r.invoiceDate),
-        "Start factuurperiode": toExcelDate(r.startDate),
-        "Eind factuurperiode": toExcelDate(r.endDate),
-        "Kostensoort": r.costType,
-        "Gefactureerd": r.invoiced === "" ? "" : Number(r.invoiced.toFixed(2))
-      }));
-
-      const sheet2Rows = reportLeaseData.map(r => ({
-        "Soort afwijking": r.deviationType,
-        "Kenteken": r.plate,
-        "Status": r.status,
-        "Status sinds": toExcelDate(r.statusSince),
-        "Leverancier": r.leasCo,
-        "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": toExcelDate(r.invoiceDate),
-        "Start factuurperiode": toExcelDate(r.startDate),
-        "Eind factuurperiode": toExcelDate(r.endDate),
-        "Aantal regels (leasetarief)": r.lineCount,
-        "Gefactureerd": Number(r.invoiced.toFixed(2)),
-        "FullFleet": Number(r.traxallCosts.toFixed(2)),
-        "Verschil": Number(r.difference.toFixed(2))
-      }));
-
-      const sheet3Rows = reportDamageData.map(r => ({
-        "Soort afwijking": r.deviationType,
-        "Kenteken": r.plate,
-        "Status": r.status,
-        "Status sinds": toExcelDate(r.statusSince),
-        "Leverancier": r.leasCo,
-        "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": toExcelDate(r.invoiceDate),
-        "Start factuurperiode": toExcelDate(r.startDate),
-        "Eind factuurperiode": toExcelDate(r.endDate),
-        "Kostensoort": r.costType,
-        "Gefactureerd": Number(r.invoiced.toFixed(2)),
-        "Overschot vervangend vervoer": r.replacementSurplus === "" ? "" : Number(r.replacementSurplus.toFixed(2))
-      }));
-
-      const sheet4Rows = reportVariableCostsData.map(r => ({
-        "Kenteken": r.plate,
-        "Status": r.status,
-        "Status sinds": toExcelDate(r.statusSince),
-        "Leverancier": r.leasCo,
-        "Factuurnummer": r.invoiceNum,
-        "Factuurdatum": toExcelDate(r.invoiceDate),
-        "Start factuurperiode": toExcelDate(r.startDate),
-        "Eind factuurperiode": toExcelDate(r.endDate),
-        "Kostensoort": r.costType,
-        "Gefactureerd": Number(r.invoiced.toFixed(2))
-      }));
-
-      const wb = XLSX.utils.book_new();
-
-      const ws1 = XLSX.utils.json_to_sheet(sheet1Rows);
-      applyExcelStyles(ws1, sheet1Rows.length, ["K"], ["D", "G", "H", "I"], "B");
-      XLSX.utils.book_append_sheet(wb, ws1, "Actief-Inactief");
-
-      const ws2 = XLSX.utils.json_to_sheet(sheet2Rows);
-      applyExcelStyles(ws2, sheet2Rows.length, ["K", "L", "M"], ["D", "G", "H", "I"], "B");
-      XLSX.utils.book_append_sheet(wb, ws2, "Leasetarief");
-
-      const ws3 = XLSX.utils.json_to_sheet(sheet3Rows);
-      applyExcelStyles(ws3, sheet3Rows.length, ["K", "L"], ["D", "G", "H", "I"], "B");
-      XLSX.utils.book_append_sheet(wb, ws3, "Schades-Vervangend vervoer");
-
-      const ws4 = XLSX.utils.json_to_sheet(sheet4Rows);
-      applyExcelStyles(ws4, sheet4Rows.length, ["J"], ["C", "F", "G", "H"], "A");
-      XLSX.utils.book_append_sheet(wb, ws4, "Diverse kosten");
-
-      const stamp = new Date().toISOString().slice(0, 10);
-      XLSX.writeFile(wb, `TraXall_Invoice_Analyse_${stamp}.xlsx`);
-    }
-
-    function applyExcelStyles(ws, rowCount, numCols, dateCols = [], plateCol = "A") {
-      if (!ws["!ref"]) return;
-      const range = XLSX.utils.decode_range(ws["!ref"]);
-      
-      ws['!autofilter'] = { ref: ws["!ref"] };
-
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-        if (!ws[cellAddress]) continue;
-        if (!ws[cellAddress].s) ws[cellAddress].s = {};
-        ws[cellAddress].s.font = { bold: true };
-      }
-
-      if (rowCount > 0) {
-        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-          numCols.forEach(colLetter => {
-            const cell = ws[colLetter + (R + 1)];
-            if (cell && typeof cell.v === "number") cell.z = "0.00";
-          });
-
-          dateCols.forEach(colLetter => {
-            const cell = ws[colLetter + (R + 1)];
-            if (cell && cell.v instanceof Date && !isNaN(cell.v.getTime())) {
-              cell.t = "d";
-              cell.z = "dd-mm-yyyy";
-            }
-          });
-        }
-      }
-    }
+    const COST_EN={'Bandenschade':'Tyre damage','Diefstal':'Theft','Eigen risico':'Customer excess','Onderhoud doorbelast':'Recharged maintenance','Overige schadekosten':'Other damage costs','Ruitschade':'Glass damage','Schade':'Damage','Brandstofafrekening':'Fuel settlement','Poolbeheer':'Pool management','Leasetarief':'Lease rate','Vervangend vervoer':'Replacement transport','Boetes':'Fines','Contract aanpassing':'Contract adjustment','Overige':'Other','Overige Pool':'Other pool costs','Meerkilometers':'Excess mileage','Administratiekosten Boete':'Fine administration costs'},EN={"Inactief - gefactureerd":"Inactive - invoiced","Actief - Niet gefactureerd":"Active - not invoiced","Verschil leasetarief":"Lease rate difference","Schade hoger dan eigen risico":"Damage above customer excess","Overschot vervangend vervoer 13% van leaseprijs":"Replacement transport excess above 13% of lease price","Actief":"Active","Inactief":"Inactive"};const TX={nl:{tabs:{active:"Actief/Inactief gefactureerd",lease:"Afwijkingen leasetarief",damage:"Schades en vervangend vervoer",variable:"Diverse kosten"},cols:{deviationType:"Afwijking",plate:"Kenteken",status:"Status",statusSince:"Status sinds",fleetSupplier:"Leverancier FullFleet",leasCo:"Leverancier factuur",invoiceNum:"Factuurnummer",invoiceDate:"Factuurdatum",startDate:"Start",endDate:"Eind",costType:"Kostensoort",lineCount:"Aantal regels",invoiced:"Bedrag",traxallCosts:"FullFleet",difference:"Verschil",replacementSurplus:"Overschot"}},en:{tabs:{active:"Active/Inactive invoiced",lease:"Lease rate deviations",damage:"Damage and replacement transport",variable:"Miscellaneous costs"},cols:{deviationType:"Deviation",plate:"Registration",status:"Status",statusSince:"Status since",fleetSupplier:"FullFleet supplier",leasCo:"Invoice supplier",invoiceNum:"Invoice number",invoiceDate:"Invoice date",startDate:"Start",endDate:"End",costType:"Cost type",lineCount:"Number of lines",invoiced:"Amount",traxallCosts:"FullFleet",difference:"Difference",replacementSurplus:"Excess"}}};function tr(v,k){return reportLanguage==='en'?(k==='costType'?(COST_EN[v]||v):(EN[v]||v)):v}function plate(v){const x=cleanPlate(v);if(!document.getElementById('plateHyphens').checked)return x;return x.replace(/([A-Z]+)(?=\d)|([0-9]+)(?=[A-Z])/g,'$&-').split('-').filter(Boolean).slice(0,3).join('-')}function rowsNow(){return activeCategory==='active'?reportActiveInactiveData:activeCategory==='lease'?reportLeaseData:activeCategory==='damage'?reportDamageData:reportVariableCostsData}function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+    function renderHTMLTables(){const t=TX[reportLanguage],rows=rowsNow(),right=new Set(['statusSince','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference','replacementSurplus']);document.querySelectorAll('.category-tab').forEach(b=>{b.textContent=t.tabs[b.dataset.category];b.classList.toggle('active',b.dataset.category===activeCategory)});let keys=['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate'];if(activeCategory==='active')keys.push('costType','invoiced');if(activeCategory==='lease')keys.push('lineCount','invoiced','traxallCosts','difference');if(activeCategory==='damage')keys.push('costType','invoiced','replacementSurplus');if(activeCategory==='variable')keys.push('costType','invoiced');let h='<div class="table-wrap"><table class="table"><tr>'+keys.map(k=>'<th>'+t.cols[k]+'</th>').join('')+'</tr>';h+=rows.map(r=>'<tr>'+keys.map(k=>'<td style="text-align:'+(right.has(k)?'right':'left')+'">'+esc(k==='plate'?plate(r[k]):tr(r[k]??'',k))+'</td>').join('')+'</tr>').join('');document.getElementById('result').innerHTML=h+'</table></div>';document.getElementById('downloadBtn').disabled=!rows.length}
+    function downloadXlsx(){const t=TX[reportLanguage],defs=[['active','Actief-Inactief',reportActiveInactiveData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','costType','invoiced']],['lease','Leasetarief',reportLeaseData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference']],['damage','Schades-Vervangend vervoer',reportDamageData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','costType','invoiced','replacementSurplus']],['variable','Diverse kosten',reportVariableCostsData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','costType','invoiced']]],wb=XLSX.utils.book_new();for(const[c,name,rows,keys]of defs){const data=[keys.map(k=>t.cols[k]),...rows.map(r=>keys.map(k=>k==='plate'?plate(r[k]):tr(r[k]??'',k)))],ws=XLSX.utils.aoa_to_sheet(data),range=XLSX.utils.decode_range(ws['!ref']),right=new Set(['statusSince','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference','replacementSurplus']);ws['!autofilter']={ref:ws['!ref']};ws['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};for(let col=0;col<=range.e.c;col++){const head=ws[XLSX.utils.encode_cell({r:0,c:col})];if(head)head.s={...(head.s||{}),font:{...((head.s||{}).font||{}),bold:true},alignment:{horizontal:'left'}}}for(let row=1;row<=range.e.r;row++)for(let col=0;col<=range.e.c;col++){const cell=ws[XLSX.utils.encode_cell({r:row,c:col})];if(cell)cell.s={...(cell.s||{}),alignment:{horizontal:right.has(keys[col])?'right':'left'}}}XLSX.utils.book_append_sheet(wb,ws,reportLanguage==='en'?{active:'Active-Inactive',lease:'Lease rate',damage:'Damage-Replacement',variable:'Misc costs'}[c]:name)}XLSX.writeFile(wb,(reportLanguage==='en'?'Invoice_Control':'Factuurcontrole')+'_'+document.getElementById('fromDate').value+'_'+document.getElementById('toDate').value+'.xlsx')}
+    function parseInputDate(v,e=false){if(!v)return null;return new Date(v+(e?'T23:59:59':'T00:00:00'))}function setDefaultPeriod(){const now=new Date(),from=new Date(now.getFullYear(),now.getMonth()-1,1),to=new Date(now.getFullYear(),now.getMonth(),0),fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;document.getElementById('fromDate').value=fmt(from);document.getElementById('toDate').value=fmt(to)}function setLanguage(x){reportLanguage=x;document.querySelectorAll('.flagButton').forEach(b=>b.classList.toggle('selected',b.dataset.lang===x));renderHTMLTables()}function ready(){document.getElementById('matchBtn').disabled=!(document.getElementById('accFile').files[0]&&document.getElementById('fleetFile').files[0])}document.querySelectorAll('.category-tab').forEach(b=>b.onclick=()=>{activeCategory=b.dataset.category;renderHTMLTables()});document.getElementById('langNl').onclick=()=>setLanguage('nl');document.getElementById('langEn').onclick=()=>setLanguage('en');document.getElementById('clearBtn').onclick=()=>location.reload();document.getElementById('plateHyphens').onchange=renderHTMLTables;for(const[id,box]of[['accFile','boxAcc'],['fleetFile','boxFleet']]){const i=document.getElementById(id),e=document.getElementById(box);i.onchange=()=>{e.classList.add('ready');e.querySelector('.fileButton').textContent='Upload voltooid';ready()};['dragover','drop'].forEach(x=>e.addEventListener(x,z=>z.preventDefault()));e.addEventListener('drop',z=>{const f=[...(z.dataTransfer?.files||[])].find(f=>/\.xlsx?$/i.test(f.name));if(f){const d=new DataTransfer();d.items.add(f);i.files=d.files;i.onchange()}})}
+  setDefaultPeriod();
   </script>
 </body>
 </html>
