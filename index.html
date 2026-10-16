@@ -787,9 +787,81 @@
       prepareGroupedReport(reportVariableCostsData);
     }
 
-    const COST_EN={'Bandenschade':'Tyre damage','Diefstal':'Theft','Eigen risico':'Customer excess','Onderhoud doorbelast':'Recharged maintenance','Overige schadekosten':'Other damage costs','Ruitschade':'Glass damage','Schade':'Damage','Brandstofafrekening':'Fuel settlement','Poolbeheer':'Pool management','Leasetarief':'Lease rate','Vervangend vervoer':'Replacement transport','Boetes':'Fines','Contract aanpassing':'Contract adjustment','Overige':'Other','Overige Pool':'Other pool costs','Meerkilometers':'Excess mileage','Administratiekosten Boete':'Fine administration costs'},EN={"Inactief - gefactureerd":"Inactive - invoiced","Actief - Niet gefactureerd":"Active - not invoiced","Verschil leasetarief":"Lease rate difference","Schade hoger dan eigen risico":"Damage above customer excess","Overschot vervangend vervoer 13% van leaseprijs":"Replacement transport excess above 13% of lease price","Actief":"Active","Inactief":"Inactive"};const TX={nl:{tabs:{active:"Actief/Inactief gefactureerd",lease:"Afwijkingen leasetarief",damage:"Schades en vervangend vervoer",variable:"Diverse kosten"},cols:{deviationType:"Afwijking",plate:"Kenteken",status:"Status",statusSince:"Status sinds",fleetSupplier:"Leverancier FullFleet",leasCo:"Leverancier factuur",invoiceNum:"Factuurnummer",invoiceDate:"Factuurdatum",startDate:"Start",endDate:"Eind",costType:"Kostensoort",lineCount:"Aantal regels",invoiced:"Bedrag",traxallCosts:"FullFleet",difference:"Verschil",replacementSurplus:"Overschot"}},en:{tabs:{active:"Active/Inactive invoiced",lease:"Lease rate deviations",damage:"Damage and replacement transport",variable:"Miscellaneous costs"},cols:{deviationType:"Deviation",plate:"Registration",status:"Status",statusSince:"Status since",fleetSupplier:"FullFleet supplier",leasCo:"Invoice supplier",invoiceNum:"Invoice number",invoiceDate:"Invoice date",startDate:"Start",endDate:"End",costType:"Cost type",lineCount:"Number of lines",invoiced:"Amount",traxallCosts:"FullFleet",difference:"Difference",replacementSurplus:"Excess"}}};function tr(v,k){return reportLanguage==='en'?(k==='costType'?(COST_EN[v]||v):(EN[v]||v)):v}function plate(v){const x=cleanPlate(v);if(!document.getElementById('plateHyphens').checked)return x;return x.replace(/([A-Z]+)(?=\d)|([0-9]+)(?=[A-Z])/g,'$&-').split('-').filter(Boolean).slice(0,3).join('-')}function rowsNow(){return activeCategory==='active'?reportActiveInactiveData:activeCategory==='lease'?reportLeaseData:activeCategory==='damage'?reportDamageData:reportVariableCostsData}function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+    const COST_EN={'Bandenschade':'Tyre damage','Diefstal':'Theft','Eigen risico':'Customer excess','Onderhoud doorbelast':'Recharged maintenance','Overige schadekosten':'Other damage costs','Ruitschade':'Glass damage','Schade':'Damage','Brandstofafrekening':'Fuel settlement','Poolbeheer':'Pool management','Leasetarief':'Lease rate','Vervangend vervoer':'Replacement transport','Boetes':'Fines','Contract aanpassing':'Contract adjustment','Overige':'Other','Overige Pool':'Other pool costs','Meerkilometers':'Excess mileage','Administratiekosten Boete':'Fine administration costs'},EN={"Inactief - gefactureerd":"Inactive - invoiced","Actief - Niet gefactureerd":"Active - not invoiced","Verschil leasetarief":"Lease rate difference","Schade hoger dan eigen risico":"Damage above customer excess","Overschot vervangend vervoer 13% van leaseprijs":"Replacement transport excess above 13% of lease price","Actief":"Active","Inactief":"Inactive"};const TX={nl:{tabs:{active:"Actief/Inactief gefactureerd",lease:"Afwijkingen leasetarief",damage:"Schades en vervangend vervoer",variable:"Diverse kosten"},cols:{deviationType:"Afwijking",plate:"Kenteken",status:"Status",statusSince:"Status sinds",fleetSupplier:"Leverancier FullFleet",leasCo:"Leverancier factuur",invoiceNum:"Factuurnummer",invoiceDate:"Factuurdatum",startDate:"Start",endDate:"Eind",costType:"Kostensoort",lineCount:"Aantal regels",invoiced:"Bedrag",traxallCosts:"FullFleet",difference:"Verschil",replacementSurplus:"Overschot"}},en:{tabs:{active:"Active/Inactive invoiced",lease:"Lease rate deviations",damage:"Damage and replacement transport",variable:"Miscellaneous costs"},cols:{deviationType:"Deviation",plate:"Registration",status:"Status",statusSince:"Status since",fleetSupplier:"FullFleet supplier",leasCo:"Invoice supplier",invoiceNum:"Invoice number",invoiceDate:"Invoice date",startDate:"Start",endDate:"End",costType:"Cost type",lineCount:"Number of lines",invoiced:"Amount",traxallCosts:"FullFleet",difference:"Difference",replacementSurplus:"Excess"}}};function tr(v, k) {
+      if (reportLanguage !== "en") return v;
+      if (k === "costType") return COST_EN[v] || v;
+      if (k === "deviationType" || k === "status") return EN[v] || v;
+      return v;
+    }
+    function plate(v){const x=cleanPlate(v);if(!document.getElementById('plateHyphens').checked)return x;return x.replace(/([A-Z]+)(?=\d)|([0-9]+)(?=[A-Z])/g,'$&-').split('-').filter(Boolean).slice(0,3).join('-')}function rowsNow(){return activeCategory==='active'?reportActiveInactiveData:activeCategory==='lease'?reportLeaseData:activeCategory==='damage'?reportDamageData:reportVariableCostsData}function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
     function renderHTMLTables(){const t=TX[reportLanguage],rows=rowsNow(),right=new Set(['statusSince','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference','replacementSurplus']);document.querySelectorAll('.category-tab').forEach(b=>{b.textContent=t.tabs[b.dataset.category];b.classList.toggle('active',b.dataset.category===activeCategory)});let keys=['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate'];if(activeCategory==='active')keys.push('costType','invoiced');if(activeCategory==='lease')keys.push('lineCount','invoiced','traxallCosts','difference');if(activeCategory==='damage')keys.push('costType','invoiced','replacementSurplus');if(activeCategory==='variable')keys.push('costType','invoiced');let h='<div class="table-wrap"><table class="table"><tr>'+keys.map(k=>'<th>'+t.cols[k]+'</th>').join('')+'</tr>';h+=rows.map(r=>'<tr>'+keys.map(k=>'<td style="text-align:'+(right.has(k)?'right':'left')+'">'+esc(k==='plate'?plate(r[k]):tr(r[k]??'',k))+'</td>').join('')+'</tr>').join('');document.getElementById('result').innerHTML=h+'</table></div>';document.getElementById('downloadBtn').disabled=!rows.length}
-    function downloadXlsx(){const t=TX[reportLanguage],defs=[['active','Actief-Inactief',reportActiveInactiveData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','costType','invoiced']],['lease','Leasetarief',reportLeaseData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference']],['damage','Schades-Vervangend vervoer',reportDamageData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','costType','invoiced','replacementSurplus']],['variable','Diverse kosten',reportVariableCostsData,['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate','costType','invoiced']]],wb=XLSX.utils.book_new();for(const[c,name,rows,keys]of defs){const data=[keys.map(k=>t.cols[k]),...rows.map(r=>keys.map(k=>k==='plate'?plate(r[k]):tr(r[k]??'',k)))],ws=XLSX.utils.aoa_to_sheet(data),range=XLSX.utils.decode_range(ws['!ref']),right=new Set(['statusSince','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference','replacementSurplus']);ws['!autofilter']={ref:ws['!ref']};ws['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};for(let col=0;col<=range.e.c;col++){const head=ws[XLSX.utils.encode_cell({r:0,c:col})];if(head)head.s={...(head.s||{}),font:{...((head.s||{}).font||{}),bold:true},alignment:{horizontal:'left'}}}for(let row=1;row<=range.e.r;row++)for(let col=0;col<=range.e.c;col++){const cell=ws[XLSX.utils.encode_cell({r:row,c:col})];if(cell)cell.s={...(cell.s||{}),alignment:{horizontal:right.has(keys[col])?'right':'left'}}}XLSX.utils.book_append_sheet(wb,ws,reportLanguage==='en'?{active:'Active-Inactive',lease:'Lease rate',damage:'Damage-Replacement',variable:'Misc costs'}[c]:name)}XLSX.writeFile(wb,(reportLanguage==='en'?'Invoice_Control':'Factuurcontrole')+'_'+document.getElementById('fromDate').value+'_'+document.getElementById('toDate').value+'.xlsx')}
+    function downloadXlsx() {
+      const t = TX[reportLanguage];
+      const defs = [
+        ["active", "Actief-Inactief", reportActiveInactiveData, ["deviationType","plate","status","statusSince","fleetSupplier","leasCo","invoiceNum","invoiceDate","startDate","endDate","costType","invoiced"]],
+        ["lease", "Leasetarief", reportLeaseData, ["deviationType","plate","status","statusSince","fleetSupplier","leasCo","invoiceNum","invoiceDate","startDate","endDate","lineCount","invoiced","traxallCosts","difference"]],
+        ["damage", "Schades-Vervangend vervoer", reportDamageData, ["deviationType","plate","status","statusSince","fleetSupplier","leasCo","invoiceNum","invoiceDate","startDate","endDate","costType","invoiced","replacementSurplus"]],
+        ["variable", "Diverse kosten", reportVariableCostsData, ["deviationType","plate","status","statusSince","fleetSupplier","leasCo","invoiceNum","invoiceDate","startDate","endDate","costType","invoiced"]]
+      ];
+      const numericFields = new Set(["lineCount","invoiced","traxallCosts","difference","replacementSurplus"]);
+      const amountFields = new Set(["invoiced","traxallCosts","difference","replacementSurplus"]);
+      const dateFields = new Set(["statusSince","invoiceDate","startDate","endDate"]);
+      const right = new Set(["statusSince","invoiceNum","invoiceDate","startDate","endDate","lineCount","invoiced","traxallCosts","difference","replacementSurplus"]);
+      const wb = XLSX.utils.book_new();
+
+      for (const [category, nlName, rows, keys] of defs) {
+        const data = [
+          keys.map(key => t.cols[key]),
+          ...rows.map(row => keys.map(key => {
+            const value = row[key];
+            if (key === "plate") return plate(value);
+            if (numericFields.has(key)) {
+              if (value === "" || value === null || value === undefined) return "";
+              const numberValue = Number(value);
+              return Number.isFinite(numberValue) ? numberValue : value;
+            }
+            if (dateFields.has(key)) {
+              if (value === "" || value === null || value === undefined) return "";
+              return parseDisplayDate(value) || value;
+            }
+            return tr(value ?? "", key);
+          }))
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(data, { cellDates: true });
+        if (!ws["!ref"]) continue;
+        const range = XLSX.utils.decode_range(ws["!ref"]);
+        ws["!autofilter"] = { ref: ws["!ref"] };
+        ws["!freeze"] = { xSplit: 0, ySplit: 1, topLeftCell: "A2", activePane: "bottomLeft", state: "frozen" };
+
+        for (let col = 0; col <= range.e.c; col++) {
+          const head = ws[XLSX.utils.encode_cell({ r: 0, c: col })];
+          if (head) head.s = { ...(head.s || {}), font: { ...((head.s || {}).font || {}), bold: true }, alignment: { horizontal: "left", vertical: "center" } };
+        }
+        for (let row = 1; row <= range.e.r; row++) {
+          for (let col = 0; col <= range.e.c; col++) {
+            const key = keys[col];
+            const cell = ws[XLSX.utils.encode_cell({ r: row, c: col })];
+            if (!cell) continue;
+            cell.s = { ...(cell.s || {}), alignment: { horizontal: right.has(key) ? "right" : "left", vertical: "center" } };
+            if (amountFields.has(key) && typeof cell.v === "number") {
+              cell.t = "n";
+              cell.z = "#.##0,00";
+            } else if (key === "lineCount" && typeof cell.v === "number") {
+              cell.t = "n";
+              cell.z = "0";
+            } else if (dateFields.has(key) && cell.v instanceof Date && !isNaN(cell.v.getTime())) {
+              cell.t = "d";
+              cell.z = "dd-mm-yyyy";
+            }
+          }
+        }
+        const enNames = { active: "Active-Inactive", lease: "Lease rate", damage: "Damage-Replacement", variable: "Misc costs" };
+        XLSX.utils.book_append_sheet(wb, ws, reportLanguage === "en" ? enNames[category] : nlName);
+      }
+      const fileName = (reportLanguage === "en" ? "Invoice_Control" : "Factuurcontrole") + "_" + document.getElementById("fromDate").value + "_" + document.getElementById("toDate").value + ".xlsx";
+      XLSX.writeFile(wb, fileName);
+    }
+    
     function parseInputDate(v,e=false){if(!v)return null;return new Date(v+(e?'T23:59:59':'T00:00:00'))}function setDefaultPeriod(){const now=new Date(),from=new Date(now.getFullYear(),now.getMonth()-1,1),to=new Date(now.getFullYear(),now.getMonth(),0),fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;document.getElementById('fromDate').value=fmt(from);document.getElementById('toDate').value=fmt(to)}function setLanguage(x){reportLanguage=x;document.querySelectorAll('.flagButton').forEach(b=>b.classList.toggle('selected',b.dataset.lang===x));renderHTMLTables()}function ready(){document.getElementById('matchBtn').disabled=!(document.getElementById('accFile').files[0]&&document.getElementById('fleetFile').files[0])}document.querySelectorAll('.category-tab').forEach(b=>b.onclick=()=>{activeCategory=b.dataset.category;renderHTMLTables()});document.getElementById('langNl').onclick=()=>setLanguage('nl');document.getElementById('langEn').onclick=()=>setLanguage('en');document.getElementById('clearBtn').onclick=()=>location.reload();document.getElementById('plateHyphens').onchange=renderHTMLTables;for(const[id,box]of[['accFile','boxAcc'],['fleetFile','boxFleet']]){const i=document.getElementById(id),e=document.getElementById(box);i.onchange=()=>{e.classList.add('ready');e.querySelector('.fileButton').textContent='Upload voltooid';ready()};['dragover','drop'].forEach(x=>e.addEventListener(x,z=>z.preventDefault()));e.addEventListener('drop',z=>{const f=[...(z.dataTransfer?.files||[])].find(f=>/\.xlsx?$/i.test(f.name));if(f){const d=new DataTransfer();d.items.add(f);i.files=d.files;i.onchange()}})}
   setDefaultPeriod();
   </script>
