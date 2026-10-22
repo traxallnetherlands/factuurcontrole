@@ -854,8 +854,14 @@
             if (!cell) continue;
             cell.s = { ...(cell.s || {}), alignment: { horizontal: right.has(key) ? "right" : "left", vertical: "center" } };
             if (amountFields.has(key) && typeof cell.v === "number") {
+              cell.v = roundAmount(cell.v);
               cell.t = "n";
-              cell.z = "#.##0,00";
+              cell.z = "0.00";
+              cell.s = {
+                ...(cell.s || {}),
+                numFmt: "0.00",
+                alignment: { horizontal: "right", vertical: "center" }
+              };
             } else if (key === "lineCount" && typeof cell.v === "number") {
               cell.t = "n";
               cell.z = "0";
