@@ -404,8 +404,17 @@
       return Number.isFinite(n) ? n : 0;
     }
 
-    function format2(n) {
-      return Number.isFinite(n) ? n.toFixed(2) : "0.00";
+    function roundAmount(value) {
+      const numberValue = Number(value);
+      if (!Number.isFinite(numberValue)) return 0;
+      return Math.round((numberValue + Number.EPSILON) * 100) / 100;
+    }
+    function formatAmount(value) {
+      if (value === "" || value === null || value === undefined) return "";
+      const numberValue = Number(value);
+      return Number.isFinite(numberValue)
+        ? roundAmount(numberValue).toFixed(2).replace(".", ",")
+        : value;
     }
 
     function formatDate(v) {
@@ -794,7 +803,7 @@
       return v;
     }
     function plate(v){const x=cleanPlate(v);if(!document.getElementById('plateHyphens').checked)return x;return x.replace(/([A-Z]+)(?=\d)|([0-9]+)(?=[A-Z])/g,'$&-').split('-').filter(Boolean).slice(0,3).join('-')}function rowsNow(){return activeCategory==='active'?reportActiveInactiveData:activeCategory==='lease'?reportLeaseData:activeCategory==='damage'?reportDamageData:reportVariableCostsData}function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
-    function renderHTMLTables(){const t=TX[reportLanguage],rows=rowsNow(),right=new Set(['statusSince','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference','replacementSurplus']);document.querySelectorAll('.category-tab').forEach(b=>{b.textContent=t.tabs[b.dataset.category];b.classList.toggle('active',b.dataset.category===activeCategory)});let keys=['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate'];if(activeCategory==='active')keys.push('costType','invoiced');if(activeCategory==='lease')keys.push('lineCount','invoiced','traxallCosts','difference');if(activeCategory==='damage')keys.push('costType','invoiced','replacementSurplus');if(activeCategory==='variable')keys.push('costType','invoiced');let h='<div class="table-wrap"><table class="table"><tr>'+keys.map(k=>'<th>'+t.cols[k]+'</th>').join('')+'</tr>';h+=rows.map(r=>'<tr>'+keys.map(k=>'<td style="text-align:'+(right.has(k)?'right':'left')+'">'+esc(k==='plate'?plate(r[k]):tr(r[k]??'',k))+'</td>').join('')+'</tr>').join('');document.getElementById('result').innerHTML=h+'</table></div>';document.getElementById('downloadBtn').disabled=!rows.length}
+    function renderHTMLTables(){const t=TX[reportLanguage],rows=rowsNow(),right=new Set(['statusSince','invoiceNum','invoiceDate','startDate','endDate','lineCount','invoiced','traxallCosts','difference','replacementSurplus']),amountFields=new Set(['invoiced','traxallCosts','difference','replacementSurplus']);document.querySelectorAll('.category-tab').forEach(b=>{b.textContent=t.tabs[b.dataset.category];b.classList.toggle('active',b.dataset.category===activeCategory)});let keys=['deviationType','plate','status','statusSince','fleetSupplier','leasCo','invoiceNum','invoiceDate','startDate','endDate'];if(activeCategory==='active')keys.push('costType','invoiced');if(activeCategory==='lease')keys.push('lineCount','invoiced','traxallCosts','difference');if(activeCategory==='damage')keys.push('costType','invoiced','replacementSurplus');if(activeCategory==='variable')keys.push('costType','invoiced');let h='<div class="table-wrap"><table class="table"><tr>'+keys.map(k=>'<th>'+t.cols[k]+'</th>').join('')+'</tr>';h+=rows.map(r=>'<tr>'+keys.map(k=>'<td style="text-align:'+(right.has(k)?'right':'left')+'">'+esc(k==='plate'?plate(r[k]):amountFields.has(k)?formatAmount(r[k]):tr(r[k]??'',k))+'</td>').join('')+'</tr>').join('');document.getElementById('result').innerHTML=h+'</table></div>';document.getElementById('downloadBtn').disabled=!rows.length}
     function downloadXlsx() {
       const t = TX[reportLanguage];
       const defs = [
@@ -818,7 +827,8 @@
             if (numericFields.has(key)) {
               if (value === "" || value === null || value === undefined) return "";
               const numberValue = Number(value);
-              return Number.isFinite(numberValue) ? numberValue : value;
+              if (!Number.isFinite(numberValue)) return value;
+              return amountFields.has(key) ? roundAmount(numberValue) : numberValue;
             }
             if (dateFields.has(key)) {
               if (value === "" || value === null || value === undefined) return "";
